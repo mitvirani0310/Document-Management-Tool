@@ -127,7 +127,7 @@ function DocumentManagement() {
         <div className={`shadow-md rounded-lg overflow-hidden ${theme === "dark" ? "bg-gray-800" : "bg-white"}`}>
           <div className="h-[calc(100vh-250px)] overflow-auto">
             <table className={`w-full ${theme === "dark" ? "bg-gray-800" : "bg-white"}`}>
-              <thead className="bg-gray-50 dark:bg-gray-700 sticky top-0 z-10">
+              <thead className="bg-gray-100 dark:bg-gray-700 sticky top-0 z-10">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Name
@@ -150,7 +150,12 @@ function DocumentManagement() {
                 className={`divide-y ${theme === "dark" ? "bg-gray-800 divide-gray-700" : "bg-white divide-gray-200"}`}
               >
                 {documents.map((doc) => (
-                  <tr key={doc._id}>
+                  <tr
+                    key={doc._id}
+                    className={`transition-colors duration-200 ${
+                      theme === "dark" ? "hover:bg-[#5b5858]/30" : "hover:bg-gray-100"
+                    }`}
+                  >
                     <td
                       className={`px-6 py-4 text-sm ${theme === "dark" ? "text-gray-200" : "text-gray-900"} break-words max-w-xs`}
                     >
