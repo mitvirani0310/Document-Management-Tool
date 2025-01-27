@@ -24,10 +24,12 @@ function DocumentManagement() {
   }, [fetchDocuments])
 
   const handleFileUpload = useCallback(
-    async (file) => {
-      if (file) {
+    async (files) => {
+      if (files && files.length > 0) {
         const formData = new FormData()
-        formData.append("file", file)
+        for (let i = 0; i < files.length; i++) {
+          formData.append("files", files[i])
+        }
 
         try {
           await axios.post("http://localhost:5000/api/documents/upload", formData, {
@@ -35,7 +37,7 @@ function DocumentManagement() {
           })
           fetchDocuments()
         } catch (error) {
-          console.error("Error uploading file:", error)
+          console.error("Error uploading files:", error)
         }
       }
     },
@@ -73,8 +75,8 @@ function DocumentManagement() {
   const handleDrop = (e) => {
     e.preventDefault()
     setIsDragging(false)
-    const file = e.dataTransfer.files[0]
-    handleFileUpload(file)
+    const files = e.dataTransfer.files
+    handleFileUpload(files)
   }
 
   return (
@@ -107,19 +109,21 @@ function DocumentManagement() {
           >
             <FiUploadCloud className="mx-auto h-8 w-8 text-gray-400 mb-2" />
             <p className={`text-sm mb-2 ${theme === "dark" ? "text-gray-200" : "text-gray-600"}`}>
-              Drag and drop your file here, or
+              Drag and drop your files here, or
             </p>
             <input
               type="file"
-              onChange={(e) => handleFileUpload(e.target.files[0])}
+              onChange={(e) => handleFileUpload(e.target.files)}
               className="hidden"
               id="file-upload"
+              multiple
+              accept=".pdf"
             />
             <label
               htmlFor="file-upload"
               className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer"
             >
-              Select a file
+              Select files
             </label>
           </div>
         </div>

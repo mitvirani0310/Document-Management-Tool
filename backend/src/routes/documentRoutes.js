@@ -15,7 +15,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-router.post("/upload", upload.single("file"), documentController.uploadDocument);
+router.post("/upload", upload.array("files", 10), documentController.uploadDocuments);
 router.get("/", documentController.getAllDocuments);
 router.get("/:id", documentController.getDocument);
 router.get("/:id/metadata", documentController.getDocumentMetadata);

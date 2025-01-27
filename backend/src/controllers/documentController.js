@@ -3,14 +3,21 @@ const path = require('path');
 const fs = require('fs');
 const documentService = require("../services/documentService")
 
-exports.uploadDocument = async (req, res) => {
+exports.uploadDocuments = async (req, res) => {
   try {
-    const document = await documentService.uploadDocument(req.file)
-    res.status(201).json(document)
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ message: "No files uploaded" });
+    }
+
+    const documents = await Promise.all(
+      req.files.map(file => documentService.uploadDocument(file))
+    );
+
+    res.status(201).json(documents);
   } catch (error) {
-    res.status(400).json({ message: error.message })
+    res.status(400).json({ message: error.message });
   }
-}
+};
 
 exports.getAllDocuments = async (req, res) => {
   try {
