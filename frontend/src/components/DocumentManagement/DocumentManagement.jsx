@@ -82,7 +82,7 @@ function DocumentManagement() {
   return (
     <div className={`h-screen flex flex-col ${theme === "dark" ? "bg-gray-900 text-white" : "bg-white text-gray-900"}`}>
       <div className="container mx-auto p-4 flex flex-col flex-grow overflow-hidden">
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex justify-between items-center mb-4">
           <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 bg-clip-text text-transparent">
             Document AI
           </h1>
@@ -183,11 +183,7 @@ function DocumentManagement() {
                     <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3`}>
                       <button
                         onClick={() => handleShowDocument(doc._id)}
-                        className={`px-6 py-1.5 rounded-md text-sm font-medium ${
-                          theme === "dark"
-                            ? "bg-gray-700 text-gray-200 hover:bg-gray-600"
-                            : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-                        }`}
+                        className="px-6 py-1.5 rounded-md text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white"
                       >
                         View
                       </button>
