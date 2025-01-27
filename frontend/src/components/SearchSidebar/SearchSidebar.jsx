@@ -8,11 +8,9 @@ const SearchStatus = {
   FoundResults: "FoundResults",
 };
 
-// eslint-disable-next-line react/prop-types
 const SearchSidebar = ({ searchPluginInstance, searchQuery, setSearchQuery, searchButtonRef, showBookmarks }) => {
   const { theme } = useTheme()
   const [searchStatus, setSearchStatus] = useState(SearchStatus.NotSearchedYet);
-  // eslint-disable-next-line react/prop-types
   const { Search } = searchPluginInstance
   const [matches, setMatches] = useState([])
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
@@ -41,11 +39,9 @@ const SearchSidebar = ({ searchPluginInstance, searchQuery, setSearchQuery, sear
         jumpToPreviousMatch,
         search,
       }) => {
-        // eslint-disable-next-line react-hooks/rules-of-hooks
         useEffect(() => {
           if (searchQuery !== keyword) {
             setKeyword(searchQuery);
-            // eslint-disable-next-line react/prop-types
             if (searchQuery.trim()) {
               handleSearch();
             } else {
