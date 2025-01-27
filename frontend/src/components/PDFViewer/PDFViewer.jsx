@@ -7,9 +7,11 @@ import { FiDownload, FiBookmark } from "react-icons/fi"
 import SearchSidebar from "../SearchSidebar/SearchSidebar"
 import Bookmark from "../Bookmark/Bookmark"
 import { useTheme } from "../../contexts/ThemeContext"
-import "@react-pdf-viewer/core/lib/styles/index.css"
-import "@react-pdf-viewer/zoom/lib/styles/index.css"
-import "@react-pdf-viewer/bookmark/lib/styles/index.css"
+
+import "@react-pdf-viewer/core/lib/styles/index.css";
+import "@react-pdf-viewer/zoom/lib/styles/index.css";
+import "@react-pdf-viewer/bookmark/lib/styles/index.css";
+import React from "react";
 
 const PDFViewer = forwardRef(({ pdfUrl, isLoading }, ref) => {
   const [searchQuery, setSearchQuery] = useState("")
@@ -33,7 +35,7 @@ const PDFViewer = forwardRef(({ pdfUrl, isLoading }, ref) => {
       if (searchButtonRef.current) {
         setTimeout(() => {
           searchButtonRef.current.click();
-        }, 20); 
+        }, 20);
       }
     },
   }));
@@ -79,13 +81,13 @@ const PDFViewer = forwardRef(({ pdfUrl, isLoading }, ref) => {
 
   return (
     <div className={`flex flex-col h-full ${theme === "dark" ? "bg-gray-800" : "bg-white"} rounded-lg shadow-lg`}>
-      <div className="p-4 border-b flex items-center justify-between">
+      <div className="p-4 flex items-center justify-between">
         <SearchSidebar
           searchPluginInstance={searchPluginInstance}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           searchButtonRef={searchButtonRef}
-          showBookmarks={showBookmarks} 
+          showBookmarks={showBookmarks}
         />
         <div className="flex items-center gap-2">
           <ZoomOutButton />
@@ -107,28 +109,37 @@ const PDFViewer = forwardRef(({ pdfUrl, isLoading }, ref) => {
         </div>
       </div>
 
-      <div className="flex-1 relative">
-        <div className="h-full flex">
-          {showBookmarks && (
-            <Bookmark
-              showBookmarks={showBookmarks}
-              toggleBookmarks={toggleBookmarks}
-              theme={theme}
-            >
-              {bookmarkPluginInstance.Bookmarks && <bookmarkPluginInstance.Bookmarks />}
-            </Bookmark>
-          )}
-          <div className="flex-1">
+      {pdfUrl ? (
+        <div className="flex flex-1 overflow-hidden">
+          {/* <Bookmark 
+            showBookmarks={showBookmarks}
+            toggleBookmarks={toggleBookmarks}
+            theme={theme}
+          >
+            <Bookmarks renderBookmarkItem={renderBookmarkItem}/>
+          </Bookmark> */}
+          <div
+            className={`flex-1 rounded-lg shadow-inner ${theme === "dark" ? "bg-gray-700" : "bg-gray-50"} overflow-auto`}
+          >
             <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
               <Viewer
                 fileUrl={pdfUrl}
                 plugins={[searchPluginInstance, zoomPluginInstance, bookmarkPluginInstance]}
+                scrollMode="vertical"
+                defaultScale="PageWidth"
+                theme={theme}
                 ref={viewerRef}
               />
             </Worker>
           </div>
         </div>
-      </div>
+      ) : (
+        <div
+          className={`flex-1 flex items-center justify-center ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
+        >
+          No PDF file selected
+        </div>
+      )}
     </div>
   )
 })

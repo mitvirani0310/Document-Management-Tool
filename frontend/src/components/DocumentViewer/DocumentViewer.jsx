@@ -4,6 +4,9 @@ import Split from "react-split";
 import KeyValueList from "../KeyValueList/KeyValueList";
 import { useTheme } from '../../contexts/ThemeContext';
 import PDFViewer from "../PDFViewer/PDFViewer";
+import React from "react";
+import "@react-pdf-viewer/core/lib/styles/index.css";
+import "@react-pdf-viewer/search/lib/styles/index.css";
 
 const DocumentViewer = () => {
   const { documentId } = useParams();
@@ -62,11 +65,23 @@ const DocumentViewer = () => {
   );
 
   return (
-    <div className="h-screen flex flex-col p-4">
+    <div className={`flex flex-col h-screen ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-100'} overflow-hidden`}>
+    <div className={`text-center py-3 ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} shadow-md flex justify-between items-center px-6`}>
+      <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+        Document AI
+      </h1>
+      <p className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} text-sm mt-1`}>
+        Extract and analyze document information
+      </p>
+  
+    </div>
+    <div className="flex gap-6 p-6 flex-1 overflow-hidden">
       <Split 
         className="flex flex-1"
         sizes={[60, 40]}
-        minSize={[400, 300]}
+        minSize={[window.innerWidth * 0.5, 200]}
+        gutterSize={8}
+        direction="horizontal"
       >
         <PDFViewer
           ref={pdfViewerRef}
@@ -79,6 +94,7 @@ const DocumentViewer = () => {
           isLoading={isLoading}
         />
       </Split>
+    </div>
     </div>
   );
 };
