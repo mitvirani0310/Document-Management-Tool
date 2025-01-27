@@ -80,7 +80,7 @@ function DocumentManagement() {
   return (
     <div className={`h-screen flex flex-col ${theme === "dark" ? "bg-gray-900 text-white" : "bg-white text-gray-900"}`}>
       <div className="container mx-auto p-4 flex flex-col flex-grow overflow-hidden">
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex justify-between items-center mb-8">
           <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 bg-clip-text text-transparent">
             Document AI
           </h1>
@@ -106,7 +106,9 @@ function DocumentManagement() {
             onDrop={handleDrop}
           >
             <FiUploadCloud className="mx-auto h-8 w-8 text-gray-400 mb-2" />
-            <p className="text-sm text-gray-600 dark:text-gray-50 mb-2">Drag and drop your file here, or</p>
+            <p className={`text-sm mb-2 ${theme === "dark" ? "text-gray-200" : "text-gray-600"}`}>
+              Drag and drop your file here, or
+            </p>
             <input
               type="file"
               onChange={(e) => handleFileUpload(e.target.files[0])}
@@ -122,9 +124,9 @@ function DocumentManagement() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden">
-          <div className="h-[calc(100vh-240px)] overflow-auto">
-            <table className="w-full">
+        <div className={`shadow-md rounded-lg overflow-hidden ${theme === "dark" ? "bg-gray-800" : "bg-white"}`}>
+          <div className="h-[calc(100vh-250px)] overflow-auto">
+            <table className={`w-full ${theme === "dark" ? "bg-gray-800" : "bg-white"}`}>
               <thead className="bg-gray-50 dark:bg-gray-700 sticky top-0 z-10">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -144,24 +146,32 @@ function DocumentManagement() {
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+              <tbody
+                className={`divide-y ${theme === "dark" ? "bg-gray-800 divide-gray-700" : "bg-white divide-gray-200"}`}
+              >
                 {documents.map((doc) => (
                   <tr key={doc._id}>
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white break-words max-w-xs">
+                    <td
+                      className={`px-6 py-4 text-sm ${theme === "dark" ? "text-gray-200" : "text-gray-900"} break-words max-w-xs`}
+                    >
                       {doc.name}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                    <td
+                      className={`px-6 py-4 whitespace-nowrap text-sm ${theme === "dark" ? "text-gray-300" : "text-gray-500"}`}
+                    >
                       {(doc.size / 1024).toFixed(2)} KB
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100">
+                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-700 dark:text-green-100">
                         {doc.type}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                    <td
+                      className={`px-6 py-4 whitespace-nowrap text-sm ${theme === "dark" ? "text-gray-300" : "text-gray-500"}`}
+                    >
                       {new Date(doc.uploadDate).toLocaleString()}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
+                    <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3`}>
                       <button
                         onClick={() => handleShowDocument(doc._id)}
                         className={`px-6 py-1.5 rounded-md text-sm font-medium ${
