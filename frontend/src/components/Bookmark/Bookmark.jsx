@@ -1,4 +1,5 @@
 import { FiBookmark, FiX } from "react-icons/fi";
+import React from 'react';
 
 const Bookmark = ({ showBookmarks, toggleBookmarks, theme, children }) => {
   if (!showBookmarks) return null;

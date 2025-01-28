@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import { FiSearch, FiChevronLeft, FiChevronRight } from "react-icons/fi"
 import { useTheme } from "../../contexts/ThemeContext"
+import React from 'react';
 
 const SearchStatus = {
   NotSearchedYet: "NotSearchedYet",
