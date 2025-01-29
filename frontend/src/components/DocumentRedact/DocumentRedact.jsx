@@ -9,10 +9,8 @@ import "@react-pdf-viewer/core/lib/styles/index.css";
 import "@react-pdf-viewer/search/lib/styles/index.css";
 import { FiArrowLeft, FiMoon, FiSun } from "react-icons/fi";
 import { useNavigate } from 'react-router-dom';
-const API_URL = import.meta.env.VITE_API_URL;
 
-
-const DocumentViewer = () => {
+const DocumentRedact = () => {
   const { documentId } = useParams();
   const [pdfUrl, setPdfUrl] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -40,7 +38,7 @@ const DocumentViewer = () => {
       setIsExtractingData(true);
       // TODO: Replace this with actual EXE execution
       // For now using mock API call
-      const response = await fetch(`${API_URL}/${documentId}/extract`, {
+      const response = await fetch(`http://localhost:5000/api/documents/${documentId}/extract`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -67,7 +65,7 @@ const DocumentViewer = () => {
       try {
         setIsLoading(true);
         const response = await fetch(
-          `${API_URL}/api/documents/${documentId}`
+          `http://localhost:5000/api/documents/${documentId}`
         );
         if (!response.ok) throw new Error("Failed to fetch document");
         const blob = await response.blob();
@@ -76,7 +74,7 @@ const DocumentViewer = () => {
 
         // Fetch metadata separately
         // const metadataResponse = await fetch(
-        //   `${API_URL}/api/documents/${documentId}/metadata`
+        //   `http://localhost:5000/api/documents/${documentId}/metadata`
         // );
         // if (!metadataResponse.ok) throw new Error("Failed to fetch metadata");
         // const metadata = await metadataResponse.json();
@@ -145,14 +143,14 @@ const DocumentViewer = () => {
         } shadow-md flex justify-between items-center px-6`}
       >
         <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
-          Document Extraction
+          Document Redaction
         </h1>
         <p
           className={`${
             theme === "dark" ? "text-gray-400" : "text-gray-500"
           } text-sm mt-1`}
         >
-          Extract and analyze document information
+          Redact and analyze document information
         </p>
         <div className="flex items-center gap-2">
   <button
@@ -198,4 +196,4 @@ const DocumentViewer = () => {
   );
 };
 
-export default DocumentViewer;
+export default DocumentRedact;

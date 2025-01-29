@@ -15,7 +15,8 @@ dist-ssr
 # Ignore backend uploads folder
 backend/uploads/
 backend/uploads/*
-
+frontend/.env
+backend/.env
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
