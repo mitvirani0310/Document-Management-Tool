@@ -2,7 +2,7 @@ const Document = require("../models/Document");
 const path = require("path");
 const fs = require("fs");
 const documentService = require("../services/documentService");
-// const { executeExe } = require("../utils/execHelper"); 
+const { transformResponseData } = require("../utils/execHelper"); 
 const config = require("../config/config");
 const axios = require("axios");
 
@@ -72,63 +72,62 @@ exports.deleteDocument = async (req, res) => {
   }
 };
 
-exports.extractPdfData = async (req, res) => {
-  try {
-    const document = await documentService.getDocument(req.params.id);
-    if (!document) {
-      return res.status(404).json({ message: "Document not found" });
+  exports.extractPdfData = async (req, res) => {
+    try {
+      const document = await documentService.getDocument(req.params.id);
+      if (!document) {
+        return res.status(404).json({ message: "Document not found" });
+      }
+
+      // TODO: Replace this with actual EXE execution
+      // For now returning mock data
+      const mockData = {
+        "Loan Number": "Rich Dad",
+        "Loan ID": "Dad",
+        "Doc Type": "Money",
+        "Borrower 1 First Name": "impor",
+        "Borrower 1 Last Name": "this",
+        "Borrower Vesting Override": "ROBBY SMITH, AN UNMARRIED MAN",
+        "Borrower Mailing Street Address": "17344 ROSEVILLE BLVD",
+        "sample":
+          "dvdhsbvj kfbvhsfbvjfkvb sfjvbsfhvbsfj kvsf,vbsfvbsfl dvnsfvbsfjkvb sfjvsfjvbsfhvgu sfkvhsfjdv bfhvbufkd vbsvgfbsf",
+      };
+
+    // Get absolute path of PDF
+    const pdfPath = path.join(__dirname, "../../", document.path);
+    console.log("Original pdfPath: ", pdfPath);
+    
+    // Explicitly encode the file path
+    const encodedPath = encodeURIComponent(pdfPath);
+    console.log("Encoded pdfPath: ", encodedPath);
+    
+    //  Call extraction API with encoded path
+    //  const response = await axios.post(`${config.API_DATA_URL}/extract-data`, {
+    //    file_path: pdfPath
+    //  });
+    // const dataElements = "name,email,phone,address,city,state,zip"; // This can be dynamic
+    // `${config.API_DATA_URL}/extract-data?file_path=${encodedPath}&data_elements=${dataElements}`,     
+
+    const response = await axios.post(
+      `${config.API_DATA_URL}/extract-data?file_path=${encodedPath}`,     
+       {},
+      {
+        headers: {
+          'accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    
+    if (!response) {
+      throw new Error('No data received from extraction API');
     }
+    
+    const transformedData = transformResponseData(response.data);
+    res.json(transformedData);
 
-    // TODO: Replace this with actual EXE execution
-    // For now returning mock data
-    const mockData = {
-      "Loan Number": "Rich Dad",
-      "Loan ID": "Dad",
-      "Doc Type": "Money",
-      "Borrower 1 First Name": "impor",
-      "Borrower 1 Last Name": "this",
-      "Borrower Vesting Override": "ROBBY SMITH, AN UNMARRIED MAN",
-      "Borrower Mailing Street Address": "17344 ROSEVILLE BLVD",
-      sample:
-        "dvdhsbvj kfbvhsfbvjfkvb sfjvbsfhvbsfj kvsf,vbsfvbsfl dvnsfvbsfjkvb sfjvsfjvbsfhvgu sfkvhsfjdv bfhvbufkd vbsvgfbsf",
-    };
-
-   // Get absolute path of PDF
-   const pdfPath = path.join(__dirname, "../../", document.path);
-   console.log("Original pdfPath: ", pdfPath);
-   
-   // Explicitly encode the file path
-   const encodedPath = encodeURIComponent(pdfPath);
-   console.log("Encoded pdfPath: ", encodedPath);
-   
-   //Call extraction API with encoded path
-  //  const response = await axios.post(`${config.API_DATA_URL}/extract-data`, {
-  //    file_path: pdfPath
-  //  });
-
-  // const response = await axios.post(
-  //   `${config.API_DATA_URL}/extract-data?file_path=${encodedPath}`,
-  //   {
-  //     "Book Title": "Rich Dad Poor Dad",
-  //     "Author": "Robert Kiyosaki",
-  //     "Published Year": 1997
-  //   },
-  //   {
-  //     headers: {
-  //       'accept': 'application/json',
-  //       'Content-Type': 'application/json'
-  //     }
-  //   }
-  // );
-
-  //  if (!response) {
-  //    throw new Error('No data received from extraction API');
-  //  }
-
-    //res.json(response.data);
-
-    res.json(mockData);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+      // res.json(mockData);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  };

@@ -11,4 +11,18 @@ const executeExe = async (exePath, pdfPath) => {
   }
 };
 
-module.exports = { executeExe };
+const transformResponseData = (data) => {
+  const result = {};
+  
+  data.forEach(obj => {
+    Object.entries(obj).forEach(([key, valueArray]) => {
+      if (!result[key]) {
+        result[key] = valueArray[0];
+      }
+    });
+  });
+  
+  return result;
+};
+
+module.exports = { executeExe, transformResponseData };
