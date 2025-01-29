@@ -220,14 +220,14 @@ function DocumentManagement() {
                           onClick={() => handleShowDocument(doc._id)}
                           className="px-6 py-1.5 rounded-md text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white"
                         >
-                          Extract
+                          Extract Data
                         </button>
-                        <button
+                        {/* <button
                           onClick={() => handleShowRedactDocument(doc._id)}
                           className="px-6 py-1.5 rounded-md text-sm font-medium bg-green-600 hover:bg-green-700 text-white"
                         >
                           Redact
-                        </button>
+                        </button> */}
                         <button
                           onClick={() => handleOpenModal(doc)}
                           className="px-6 py-1.5 rounded-md text-sm font-medium bg-red-500 hover:bg-red-600 text-white"
