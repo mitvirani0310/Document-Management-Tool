@@ -20,5 +20,6 @@ router.get("/", documentController.getAllDocuments);
 router.get("/:id", documentController.getDocument);
 router.get("/:id/metadata", documentController.getDocumentMetadata);
 router.delete("/:id", documentController.deleteDocument);
+router.post("/:id/extract", documentController.extractPdfData);
 
 module.exports = router;

@@ -83,7 +83,16 @@ const PDFViewer = forwardRef(({ pdfUrl, isLoading }, ref) => {
           theme === "dark" ? "bg-gray-800" : "bg-white"
         }`}
       >
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-t-blue-500" />
+        {/* <div className="animate-spin rounded-full h-12 w-12 border-4 border-t-blue-500" />
+         */}
+         <div className="relative flex items-center justify-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-blue-500"></div>
+          <div className="absolute">
+            <p className={`text-base font-medium ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+              Loading PDF...
+            </p>
+          </div>
+        </div>
       </div>
     );
   }

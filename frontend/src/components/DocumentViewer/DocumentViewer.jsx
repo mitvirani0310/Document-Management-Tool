@@ -14,27 +14,56 @@ const DocumentViewer = () => {
   const { documentId } = useParams();
   const [pdfUrl, setPdfUrl] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isExtractingData, setIsExtractingData] = useState(false);
   const [error, setError] = useState(null);
-  // const [keyValueData, setKeyValueData] = useState({});
+  const [keyValueData, setKeyValueData] = useState({});
   const { theme, toggleTheme } = useTheme();
   const pdfViewerRef = useRef(null);
   const navigate = useNavigate();
 
-  const [keyValueData] = useState({
-    "Loan Number": "Rich Dad",
-    "Loan ID": "Dad",
-    "Doc Type": "Money",
-    "Borrower 1 First Name": "impor",
-    "Borrower 1 Last Name": "this",
-    "Borrower Vesting Override": "ROBBY SMITH, AN UNMARRIED MAN",
-    "Borrower Mailing Street Address": "17344 ROSEVILLE BLVD",
-    sample:
-      "dvdhsbvj kfbvhsfbvjfkvb sfjvbsfhvbsfj kvsf,vbsfvbsfl dvnsfvbsfjkvb sfjvsfjvbsfhvgu sfkvhsfjdv bfhvbufkd vbsvgfbsf",
-  });
+  // const [keyValueData] = useState({
+  //   "Loan Number": "Rich Dad",
+  //   "Loan ID": "Dad",
+  //   "Doc Type": "Money",
+  //   "Borrower 1 First Name": "impor",
+  //   "Borrower 1 Last Name": "this",
+  //   "Borrower Vesting Override": "ROBBY SMITH, AN UNMARRIED MAN",
+  //   "Borrower Mailing Street Address": "17344 ROSEVILLE BLVD",
+  //   sample:
+  //     "dvdhsbvj kfbvhsfbvjfkvb sfjvbsfhvbsfj kvsf,vbsfvbsfl dvnsfvbsfjkvb sfjvsfjvbsfhvgu sfkvhsfjdv bfhvbufkd vbsvgfbsf",
+  // });
+
+  const extractPdfData = async (documentId) => {
+    try {
+      setIsExtractingData(true);
+      // TODO: Replace this with actual EXE execution
+      // For now using mock API call
+      const response = await fetch(`http://localhost:5000/api/documents/${documentId}/extract`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ documentId })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to extract PDF data');
+      }
+
+      const data = await response.json();
+      setKeyValueData(data);
+    } catch (error) {
+      console.error('Error extracting PDF data:', error);
+      // Fallback to static data for now
+    } finally {
+      setIsExtractingData(false);
+    }
+  };
 
   useEffect(() => {
     const fetchDocument = async () => {
       try {
+        setIsLoading(true);
         const response = await fetch(
           `http://localhost:5000/api/documents/${documentId}`
         );
@@ -44,13 +73,15 @@ const DocumentViewer = () => {
         setPdfUrl(url);
 
         // Fetch metadata separately
-        const metadataResponse = await fetch(
-          `http://localhost:5000/api/documents/${documentId}/metadata`
-        );
-        if (!metadataResponse.ok) throw new Error("Failed to fetch metadata");
-        const metadata = await metadataResponse.json();
-        console.log("metadata: ", metadata);
-        // setKeyValueData(metadata);
+        // const metadataResponse = await fetch(
+        //   `http://localhost:5000/api/documents/${documentId}/metadata`
+        // );
+        // if (!metadataResponse.ok) throw new Error("Failed to fetch metadata");
+        // const metadata = await metadataResponse.json();
+        // console.log("metadata: ", metadata);
+
+        await extractPdfData(documentId);
+
       } catch (err) {
         setError(err.message);
       } finally {
@@ -76,6 +107,29 @@ const DocumentViewer = () => {
         {error}
       </div>
     );
+
+    // if (isLoading || isExtractingData) {
+    //   return (
+    //     <div className={`flex items-center justify-center h-screen ${
+    //       theme === "dark" ? "bg-gray-900 text-white" : "bg-white text-gray-900"
+    //     }`}>
+    //       {/* <div className="text-center">
+    //         <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500 mb-4"></div>
+    //         <p className="text-lg">
+    //           {isLoading ? "Loading PDF..." : "Extracting document data..."}
+    //         </p>
+    //       </div> */}
+    //       <div className="relative flex items-center justify-center">
+    //       <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-blue-500"></div>
+    //       <div className="absolute">
+    //         <p className={`text-base font-medium ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+    //           Loading...
+    //         </p>
+    //       </div>
+    //     </div>
+    //     </div>
+    //   );
+    // }
 
   return (
     <div
@@ -134,7 +188,7 @@ const DocumentViewer = () => {
           <KeyValueList
             data={keyValueData}
             handleKeyValueClick={handleKeyValueClick}
-            isLoading={isLoading}
+            isLoading={isExtractingData}
           />
         </Split>
       </div>
