@@ -16,6 +16,10 @@ exports.getAllDocuments = async () => {
   return await Document.find()
 }
 
+exports.updateDocument = async (docId, updateData) => {
+  return await Document.findByIdAndUpdate(docId, updateData, { new: true });
+};
+
 exports.getDocument = async (id) => {
   return await Document.findById(id)
 }

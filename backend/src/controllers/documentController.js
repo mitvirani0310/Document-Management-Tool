@@ -47,6 +47,30 @@ exports.getDocument = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+exports.getRedactedDocument = async (req, res) => {
+  try {
+    const document = await documentService.getDocument(req.params.id);
+    if (!document) {
+      return res.status(404).json({ message: "Document not found" });
+    }
+
+    const filePath = path.resolve(__dirname, "../../", document.redacted_path);
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ message: "File not found" });
+    }
+
+    // ✅ Send JSON metadata first
+    res.setHeader('Redacted-Data', JSON.stringify(document.redacted_data));
+
+    // ✅ Send the file
+    res.sendFile(filePath);
+    
+    console.log("filePath: ", filePath);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 
 exports.getDocumentMetadata = async (req, res) => {
   try {
@@ -126,8 +150,94 @@ exports.deleteDocument = async (req, res) => {
     const transformedData = transformResponseData(response.data);
     res.json(transformedData);
 
-      // res.json(mockData);
-    } catch (error) {
-      res.status(500).json({ message: error.message });
+    res.json(mockData);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+exports.redactPdfData = async (req, res) => {
+  try {
+    const document = await documentService.getDocument(req.params.id);
+    if (!document) {
+      return res.status(404).json({ message: "Document not found" });
+    };
+    const data = req.body;
+  
+    if (!data) {
+      return res.status(400).json({ message: "Data not provided" });
     }
-  };
+
+
+    // TODO: Replace this with actual EXE execution
+    // For now returning mock data
+    // const mockData = {
+    //   "Loan Number": "Rich Dad",
+    //   "Loan ID": "Dad",
+    //   "Doc Type": "Money",
+    //   "Borrower 1 First Name": "impor",
+    //   "Borrower 1 Last Name": "this",
+    //   "Borrower Vesting Override": "ROBBY SMITH, AN UNMARRIED MAN",
+    //   "Borrower Mailing Street Address": "17344 ROSEVILLE BLVD",
+    //   sample:
+    //     "dvdhsbvj kfbvhsfbvjfkvb sfjvbsfhvbsfj kvsf,vbsfvbsfl dvnsfvbsfjkvb sfjvsfjvbsfhvgu sfkvhsfjdv bfhvbufkd vbsvgfbsf",
+    // };
+
+   // Get absolute path of PDF
+   const pdfPath = path.join(__dirname, "../../", document.path);
+   
+   // Explicitly encode the file path
+   const encodedPath = encodeURIComponent(pdfPath);
+   
+   //Call extraction API with encoded path
+  //  const response = await axios.post(`${config.API_DATA_URL}/extract-data`, {
+  //    file_path: pdfPath
+  //  });
+  const transformedData = Object.keys(data).map(key => {
+    return {
+        [key.charAt(0).toUpperCase() + key.slice(1)]: [data[key].toUpperCase()]
+    };
+});
+
+
+  const response = await axios.post(
+    `${config.API_DATA_URL}/redact-data?file_path=${encodedPath}`,
+    transformedData,
+    {
+      headers: {
+        'accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      responseType: 'arraybuffer'  // To handle binary data (PDF)
+    }
+  );
+
+  res.setHeader('Content-Type', 'application/pdf');
+
+ 
+  console.log('response: ', response);
+  const pdfData = response.data;   
+
+  const redactedDir = path.join(__dirname, '../../redacted-uploads');
+    if (!fs.existsSync(redactedDir)) {
+      fs.mkdirSync(redactedDir, { recursive: true }); // Ensure directory exists
+    }
+
+    const parsedPath = path.parse(document.path);  
+    const originalFilename = parsedPath.name; // Extract filename without extension
+    const redactedFilePath = path.join(redactedDir, `${originalFilename}_redacted.pdf`);
+
+    // Write the redacted PDF to the redacted-uploads folder
+    fs.writeFileSync(redactedFilePath, pdfData);
+
+    // redacted-uploads\17337748480736_redacted.pdf
+    const redacted_path = `redacted-uploads\\${originalFilename}_redacted.pdf`;
+
+    await documentService.updateDocument(req.params.id, { redacted_data: data ,redacted_path});
+
+  res.send(pdfData);
+
+    // res.json(mockData);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

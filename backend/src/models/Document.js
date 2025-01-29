@@ -1,4 +1,5 @@
 const mongoose = require("mongoose")
+const { Schema } = mongoose;
 
 const documentSchema = new mongoose.Schema({
   name: {
@@ -8,6 +9,13 @@ const documentSchema = new mongoose.Schema({
   path: {
     type: String,
     required: true,
+  },
+  redacted_path: {
+    type: String,
+  },
+  redacted_data: {
+    type: Schema.Types.Mixed,  // Allows any type of JSON object
+    default: {}
   },
   size: {
     type: Number,

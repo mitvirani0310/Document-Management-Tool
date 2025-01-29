@@ -65,13 +65,13 @@ const DocumentRedact = () => {
       try {
         setIsLoading(true);
         const response = await fetch(
-          `http://localhost:5000/api/documents/${documentId}`
+          `http://localhost:5000/api/documents/redact/${documentId}`
         );
         if (!response.ok) throw new Error("Failed to fetch document");
         const blob = await response.blob();
         const url = URL.createObjectURL(blob);
         setPdfUrl(url);
-
+        
         // Fetch metadata separately
         // const metadataResponse = await fetch(
         //   `http://localhost:5000/api/documents/${documentId}/metadata`

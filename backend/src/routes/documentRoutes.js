@@ -18,8 +18,10 @@ const upload = multer({ storage: storage });
 router.post("/upload", upload.array("files", 10), documentController.uploadDocuments);
 router.get("/", documentController.getAllDocuments);
 router.get("/:id", documentController.getDocument);
+router.get("redact/:id", documentController.getRedactedDocument);
 router.get("/:id/metadata", documentController.getDocumentMetadata);
 router.delete("/:id", documentController.deleteDocument);
 router.post("/:id/extract", documentController.extractPdfData);
+router.post("/:id/redact", documentController.redactPdfData);
 
 module.exports = router;
