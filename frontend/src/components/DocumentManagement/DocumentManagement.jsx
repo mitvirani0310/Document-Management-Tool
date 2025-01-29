@@ -4,6 +4,7 @@ import { useTheme } from "../../contexts/ThemeContext";
 import axios from "axios";
 import { FiSun, FiMoon, FiUploadCloud } from "react-icons/fi";
 import DeleteConfirmationModal from "../DeleteConfirmationModal/DeleteConfirmationModal";
+const API_URL = import.meta.env.VITE_API_URL;
 
 function DocumentManagement() {
   const [documents, setDocuments] = useState([]);
@@ -15,7 +16,7 @@ function DocumentManagement() {
 
   const fetchDocuments = useCallback(async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/documents");
+      const response = await axios.get(`${API_URL}/api/documents`);
       setDocuments(response.data);
     } catch (error) {
       console.error("Error fetching documents:", error);
@@ -36,7 +37,7 @@ function DocumentManagement() {
 
         try {
           await axios.post(
-            "http://localhost:5000/api/documents/upload",
+            `${API_URL}/api/documents/upload`,
             formData,
             {
               headers: { "Content-Type": "multipart/form-data" },
@@ -62,7 +63,7 @@ function DocumentManagement() {
     async () => {
       if (selectedDocument) {
         try {
-          await axios.delete(`http://localhost:5000/api/documents/${selectedDocument._id}`);
+          await axios.delete(`${API_URL}/api/documents/${selectedDocument._id}`);
           fetchDocuments();
           setIsModalOpen(false); // Close the modal
           setSelectedDocument(null); // Clear the selected document

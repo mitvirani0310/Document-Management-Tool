@@ -9,6 +9,8 @@ import "@react-pdf-viewer/core/lib/styles/index.css";
 import "@react-pdf-viewer/search/lib/styles/index.css";
 import { FiArrowLeft, FiMoon, FiSun } from "react-icons/fi";
 import { useNavigate } from 'react-router-dom';
+const API_URL = import.meta.env.VITE_API_URL;
+
 
 const DocumentViewer = () => {
   const { documentId } = useParams();
@@ -38,7 +40,7 @@ const DocumentViewer = () => {
       setIsExtractingData(true);
       // TODO: Replace this with actual EXE execution
       // For now using mock API call
-      const response = await fetch(`http://localhost:5000/api/documents/${documentId}/extract`, {
+      const response = await fetch(`${API_URL}/${documentId}/extract`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -65,7 +67,7 @@ const DocumentViewer = () => {
       try {
         setIsLoading(true);
         const response = await fetch(
-          `http://localhost:5000/api/documents/${documentId}`
+          `${API_URL}/api/documents/${documentId}`
         );
         if (!response.ok) throw new Error("Failed to fetch document");
         const blob = await response.blob();
@@ -74,7 +76,7 @@ const DocumentViewer = () => {
 
         // Fetch metadata separately
         // const metadataResponse = await fetch(
-        //   `http://localhost:5000/api/documents/${documentId}/metadata`
+        //   `${API_URL}/api/documents/${documentId}/metadata`
         // );
         // if (!metadataResponse.ok) throw new Error("Failed to fetch metadata");
         // const metadata = await metadataResponse.json();
