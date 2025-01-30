@@ -25,6 +25,7 @@ const DocumentViewer = () => {
   const pdfViewerRef = useRef(null);
   const navigate = useNavigate();
   const hasExtractedData = useRef(false); // Ref to prevent multiple API calls
+  const [isRedacting, setIsRedacting] = useState(false);
 
   // const [keyValueData] = useState({
     //   "Loan Number": "Rich Dad",
@@ -169,7 +170,7 @@ const DocumentViewer = () => {
           gutterSize={8}
           direction="horizontal"
         >
-          <PDFViewer ref={pdfViewerRef} pdfUrl={pdfUrl} isLoading={isLoading} fileName={documentName}/>
+          <PDFViewer ref={pdfViewerRef} pdfUrl={pdfUrl} isLoading={isLoading} fileName={documentName} isRedacting={isRedacting}/>
           <KeyValueList
             data={keyValueData}
             handleKeyValueClick={handleKeyValueClick}

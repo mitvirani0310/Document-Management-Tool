@@ -12,17 +12,6 @@ import { useNavigate } from 'react-router-dom';
 const API_URL = import.meta.env.VITE_API_URL;
 import OutamationAI from "../../../public/outamation-llm.png";
 
-const fixKeys = (obj) => {
-  const fixedObj = {};
-  Object.keys(obj).forEach(key => {
-    // Remove extra double quotes from key names and keep the value as it is
-    const newKey = key.replace(/^"(.*)"$/, '$1'); // Remove leading/trailing quotes
-    fixedObj[newKey] = obj[key];
-  });
-  return fixedObj;
-};
-
-
 const DocumentRedact = () => {
   const { documentId } = useParams();
   const [pdfUrl, setPdfUrl] = useState(null);
@@ -35,7 +24,7 @@ const DocumentRedact = () => {
   const pdfViewerRef = useRef(null);
   const navigate = useNavigate();
   const hasExtractedData = useRef(false); // Ref to prevent multiple API calls
-
+  const [isRedacting, setIsRedacting] = useState(false);
   // const [keyValueData] = useState({
     //   "Loan Number": "Rich Dad",
     //   "Loan ID": "Dad",
@@ -119,6 +108,7 @@ const DocumentRedact = () => {
 
   const handleRedactData = async () => {
     setIsLoading(true);  
+    setIsRedacting(true);
      try {
       const response = await fetch(`${API_URL}/api/documents/${documentId}/redact`, {
         method: "POST",
@@ -137,6 +127,7 @@ const DocumentRedact = () => {
       setPdfUrl(url);
       if(response.ok){
         setIsLoading(false);
+        setIsRedacting(false);
       }
       // Set the blob URL to pdfUrl
       // Optionally, update state or notify the user
@@ -211,7 +202,7 @@ const DocumentRedact = () => {
           gutterSize={8}
           direction="horizontal"
         >
-          <PDFViewer ref={pdfViewerRef} pdfUrl={pdfUrl} isLoading={isLoading} fileName={documentName}/>
+          <PDFViewer ref={pdfViewerRef} pdfUrl={pdfUrl} isLoading={isLoading} fileName={documentName} isRedacting={isRedacting}/>
           <KeyValueList
             data={keyValueData}
             handleKeyValueClick={handleKeyValueClick}

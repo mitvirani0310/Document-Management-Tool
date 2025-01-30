@@ -19,7 +19,7 @@ import "@react-pdf-viewer/zoom/lib/styles/index.css";
 import "@react-pdf-viewer/bookmark/lib/styles/index.css";
 import React from "react";
 
-const PDFViewer = forwardRef(({ pdfUrl, isLoading,fileName }, ref) => {
+const PDFViewer = forwardRef(({ pdfUrl, isLoading, fileName, isRedacting }, ref) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showBookmarks, setShowBookmarks] = useState(false);
   const viewerRef = useRef(null);
@@ -89,7 +89,7 @@ const PDFViewer = forwardRef(({ pdfUrl, isLoading,fileName }, ref) => {
           <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-blue-500"></div>
           <div className="absolute">
             <p className={`text-base font-medium ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
-              Loading PDF...
+            {isRedacting ? 'Redacting Data...' : 'Loading PDF...'}
             </p>
           </div>
         </div>
