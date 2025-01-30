@@ -19,7 +19,7 @@ import "@react-pdf-viewer/zoom/lib/styles/index.css";
 import "@react-pdf-viewer/bookmark/lib/styles/index.css";
 import React from "react";
 
-const PDFViewer = forwardRef(({ pdfUrl, isLoading }, ref) => {
+const PDFViewer = forwardRef(({ pdfUrl, isLoading,fileName }, ref) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showBookmarks, setShowBookmarks] = useState(false);
   const viewerRef = useRef(null);
@@ -111,6 +111,9 @@ const PDFViewer = forwardRef(({ pdfUrl, isLoading }, ref) => {
           searchButtonRef={searchButtonRef}
           showBookmarks={showBookmarks}
         />
+        {fileName && <span  className={`text-sm mx-3 ${
+                  theme === "dark" ? "text-gray-300" : "text-gray-600"
+                }`}>{fileName}</span>}
         <div className="flex items-center gap-2" data-theme={theme}>
         <ZoomOutButton pclassName="rv-zoom__button" />
               <ZoomPopover className="rpv-zoom__popover"/>

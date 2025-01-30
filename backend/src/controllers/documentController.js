@@ -50,13 +50,18 @@ exports.getDocument = async (req, res) => {
     const filePath = path.resolve(__dirname, "../../", document.path);
     if (!fs.existsSync(filePath)) {
       return res.status(404).json({ message: "File not found" });
+
     }
+    res.setHeader("Access-Control-Expose-Headers", "Content-Disposition");
+    res.setHeader("Content-Disposition", `attachment; filename="${document.name}"`);
+
     res.sendFile(filePath);
     console.log("filePath: ", filePath);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
 exports.getRedactedDocument = async (req, res) => {
   try {
     const document = await documentService.getDocument(req.params.id);

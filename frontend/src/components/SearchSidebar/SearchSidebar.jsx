@@ -17,17 +17,20 @@ const SearchSidebar = ({ searchPluginInstance, searchQuery, setSearchQuery, sear
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
   const inputRef = useRef(null);
   const isNavigating = useRef(false);
+  const [isFocused, setIsFocused] = useState(false);
+
 
   const maintainFocus = useCallback(() => {
-    if (inputRef.current && !isNavigating.current) {
+    if (inputRef.current && isFocused && !isNavigating.current) {
       inputRef.current.focus();
     }
-  }, []);
+  }, [isFocused]);
 
-  useEffect(() => {
-    const timeoutId = setTimeout(maintainFocus, 100);
-    return () => clearTimeout(timeoutId);
-  }, [showBookmarks, maintainFocus]);
+
+  // useEffect(() => {
+  //   const timeoutId = setTimeout(maintainFocus, 100);
+  //   return () => clearTimeout(timeoutId);
+  // }, [showBookmarks, maintainFocus]);
 
   return (
     <Search>
@@ -52,6 +55,31 @@ const SearchSidebar = ({ searchPluginInstance, searchQuery, setSearchQuery, sear
           }
         }, [searchQuery, keyword, setKeyword]);
 
+        useEffect(() => {
+          const handleClickOutside = (event) => {
+            if (inputRef.current && !inputRef.current.contains(event.target)) {
+              setIsFocused(false);
+              inputRef.current.blur(); // Ensure input loses focus
+            }
+          };
+
+          const handlePaste = (event) => {
+            if (inputRef.current && !inputRef.current.contains(event.target)) {
+              setIsFocused(false);
+              inputRef.current.blur();
+            }
+          };
+
+          document.addEventListener("mousedown", handleClickOutside);
+          document.addEventListener("paste", handlePaste);
+
+          return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+            document.removeEventListener("paste", handlePaste);
+          };
+        }, []);
+
+
         const handleSearch = () => {
           if (keyword.trim()) {
             setSearchStatus(SearchStatus.Searching);
@@ -66,7 +94,7 @@ const SearchSidebar = ({ searchPluginInstance, searchQuery, setSearchQuery, sear
                 setTimeout(() => {
                   isNavigating.current = false;
                   maintainFocus();
-                }, 100);
+                }, 20);
               }
             });
           } else {
@@ -128,20 +156,18 @@ const SearchSidebar = ({ searchPluginInstance, searchQuery, setSearchQuery, sear
                   value={keyword}
                   onChange={handleInputChange}
                   onKeyPress={handleKeyPress}
+                  onFocus={() => setIsFocused(true)}
                   onBlur={() => {
-                    if (!isNavigating.current) {
-                      setTimeout(() => {
-                        if (!isNavigating.current) {
-                          maintainFocus();
-                        }
-                      }, 100);
-                    }
+                    setTimeout(() => {
+                      if (!isNavigating.current) {
+                        setIsFocused(false);
+                      }
+                    }, 100);
                   }}
-                  className={`flex-1 px-3 w-72 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm ${
-                    theme === "dark"
+                  className={`flex-1 px-3 w-72 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm ${theme === "dark"
                       ? "bg-gray-700 text-white border-gray-600"
                       : "bg-white text-gray-900 border-gray-300"
-                  }`}
+                    }`}
                 />
                 <button
                   ref={searchButtonRef}
@@ -149,11 +175,10 @@ const SearchSidebar = ({ searchPluginInstance, searchQuery, setSearchQuery, sear
                     handleSearch();
                     maintainFocus();
                   }}
-                  className={`ml-2 p-2 rounded-lg ${
-                    theme === "dark"
+                  className={`ml-2 p-2 rounded-lg ${theme === "dark"
                       ? "bg-blue-600 text-white hover:bg-blue-700"
                       : "bg-blue-500 text-white hover:bg-blue-600"
-                  }`}
+                    }`}
                 >
                   <FiSearch />
                 </button>
@@ -164,29 +189,26 @@ const SearchSidebar = ({ searchPluginInstance, searchQuery, setSearchQuery, sear
               <button
                 onClick={handlePreviousMatch}
                 disabled={matches.length === 0 || currentMatchIndex === 1}
-                className={`p-2 rounded-lg ${
-                  theme === "dark"
+                className={`p-2 rounded-lg ${theme === "dark"
                     ? "bg-blue-600 text-white hover:bg-blue-700"
                     : "bg-blue-500 text-white hover:bg-blue-600"
-                } disabled:opacity-50 disabled:cursor-not-allowed`}
+                  } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 <FiChevronLeft />
               </button>
               <span
-                className={`text-sm mx-3 ${
-                  theme === "dark" ? "text-gray-300" : "text-gray-600"
-                }`}
+                className={`text-sm mx-3 ${theme === "dark" ? "text-gray-300" : "text-gray-600"
+                  }`}
               >
                 {getDisplayText()}
               </span>
               <button
                 onClick={handleNextMatch}
                 disabled={matches.length === 0 || currentMatchIndex === matches.length}
-                className={`p-2 rounded-lg ${
-                  theme === "dark"
+                className={`p-2 rounded-lg ${theme === "dark"
                     ? "bg-blue-600 text-white hover:bg-blue-700"
                     : "bg-blue-500 text-white hover:bg-blue-600"
-                } disabled:opacity-50 disabled:cursor-not-allowed`}
+                  } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 <FiChevronRight />
               </button>

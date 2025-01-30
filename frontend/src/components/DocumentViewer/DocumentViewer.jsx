@@ -15,6 +15,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 const DocumentViewer = () => {
   const { documentId } = useParams();
   const [pdfUrl, setPdfUrl] = useState(null);
+  const [documentName, setDocumentName] = useState();
   const [isLoading, setIsLoading] = useState(true);
   const [isExtractingData, setIsExtractingData] = useState(false);
   const [error, setError] = useState(null);
@@ -43,6 +44,17 @@ const DocumentViewer = () => {
         if (!response.ok) throw new Error("Failed to fetch document");
         const blob = await response.blob();
         const url = URL.createObjectURL(blob);
+        const contentDisposition = response.headers.get("Content-Disposition");
+        let filename = "";
+        
+        if (contentDisposition) {
+          const match = contentDisposition.match(/filename="(.+)"/);
+          if (match && match[1]) {
+            filename = match[1].replace(/\.pdf$/, ""); // Removes only `.pdf` from the end
+          }
+        }
+        
+        setDocumentName(filename);
         setPdfUrl(url);
       } catch (err) {
         setError(err.message);
@@ -158,11 +170,11 @@ const DocumentViewer = () => {
         <Split
           className="flex flex-1"
           sizes={[60, 40]}
-          minSize={[window.innerWidth * 0.5, 200]}
+          minSize={[window.innerWidth * 0.6, 200]}
           gutterSize={8}
           direction="horizontal"
         >
-          <PDFViewer ref={pdfViewerRef} pdfUrl={pdfUrl} isLoading={isLoading} />
+          <PDFViewer ref={pdfViewerRef} pdfUrl={pdfUrl} isLoading={isLoading} fileName={documentName}/>
           <KeyValueList
             data={keyValueData}
             handleKeyValueClick={handleKeyValueClick}

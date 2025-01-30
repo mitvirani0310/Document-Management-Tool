@@ -27,6 +27,7 @@ const DocumentRedact = () => {
   const [pdfUrl, setPdfUrl] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isExtractingData, setIsExtractingData] = useState(false);
+  const [documentName, setDocumentName] = useState();
   const [error, setError] = useState(null);
   const [keyValueData, setKeyValueData] = useState({});
   const { theme, toggleTheme } = useTheme();
@@ -51,8 +52,21 @@ const DocumentRedact = () => {
         setIsLoading(true);
         const response = await fetch(`${API_URL}/api/documents/${documentId}`);
         if (!response.ok) throw new Error("Failed to fetch document");
+       
         const blob = await response.blob();
         const url = URL.createObjectURL(blob);
+
+        const contentDisposition = response.headers.get("Content-Disposition");
+        let filename = "";
+        
+        if (contentDisposition) {
+          const match = contentDisposition.match(/filename="(.+)"/);
+          if (match && match[1]) {
+            filename = match[1].replace(/\.pdf$/, ""); // Removes only `.pdf` from the end
+          }
+        }
+        
+        setDocumentName(filename);
         setPdfUrl(url);
       } catch (err) {
         setError(err.message);
@@ -103,34 +117,27 @@ const DocumentRedact = () => {
 
 
   const handleRedactData = async () => {
-    
-    let jsonString = JSON.stringify(keyValueData);
-
-    // Replace single quotes with double quotes
-    jsonString = jsonString.replace(/'/g, '"');
-    
-    // Parse the JSON string back to an object
-    const newObj = JSON.parse(jsonString);   
+    setIsLoading(true);  
      try {
       const response = await fetch(`${API_URL}/api/documents/${documentId}/redact`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ newObj}),   // Ensure keyValueData is sent as part of the body
+        body: JSON.stringify( keyValueData ),   // Ensure keyValueData is sent as part of the body
       });
   
       if (!response.ok) {
         throw new Error("Failed to redact data");
       }
-  
       // Assuming the response is a PDF blob
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
-      setPdfUrl(url);  // Set the blob URL to pdfUrl
-  
-      console.log("Redaction successful, PDF updated");
-  
+      setPdfUrl(url);
+      if(response.ok){
+        setIsLoading(false);
+      }
+      // Set the blob URL to pdfUrl
       // Optionally, update state or notify the user
     } catch (error) {
       console.error("Error redacting data:", error);
@@ -205,11 +212,11 @@ const DocumentRedact = () => {
         <Split
           className="flex flex-1"
           sizes={[60, 40]}
-          minSize={[window.innerWidth * 0.5, 200]}
+          minSize={[window.innerWidth * 0.6, 200]}
           gutterSize={8}
           direction="horizontal"
         >
-          <PDFViewer ref={pdfViewerRef} pdfUrl={pdfUrl} isLoading={isLoading} />
+          <PDFViewer ref={pdfViewerRef} pdfUrl={pdfUrl} isLoading={isLoading} fileName={documentName}/>
           <KeyValueList
             data={keyValueData}
             handleKeyValueClick={handleKeyValueClick}
