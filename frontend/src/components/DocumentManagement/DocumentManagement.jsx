@@ -6,6 +6,8 @@ import { FiSun, FiMoon, FiUploadCloud } from "react-icons/fi";
 import DeleteConfirmationModal from "../DeleteConfirmationModal/DeleteConfirmationModal";
 // import RedactInputModal from "../RedactInputModal/RedactInputModal";
 const API_URL = import.meta.env.VITE_API_URL;
+import OutamationAI from "../../../public/outamation-llm.png";
+
 
 function DocumentManagement() {
   const [documents, setDocuments] = useState([]);
@@ -132,16 +134,18 @@ function DocumentManagement() {
     >
       <div className="container mx-auto p-4 flex flex-col flex-grow overflow-hidden">
         {/* Header */}
-        <div className="flex justify-between items-center mb-4">
-          <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 bg-clip-text text-transparent">
+        <div className="flex justify-between items-center mb-4 relative">
+          <img src={OutamationAI} alt="Outamation AI" className="w-48 h-12" />
+          <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 bg-clip-text text-transparent absolute left-1/2 transform -translate-x-1/2">
             Document AI
           </h1>
           <button
             onClick={toggleTheme}
-            className={`p-2 rounded-full flex items-center gap-2 ${theme === "dark"
-              ? "bg-gray-700 text-gray-200 hover:bg-gray-600"
-              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-              }`}
+            className={`p-2 rounded-full flex items-center gap-2 ${
+              theme === "dark"
+                ? "bg-gray-700 text-gray-200 hover:bg-gray-600"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+            }`}
           >
             {theme === "dark" ? (
               <FiSun className="w-5 h-5" />

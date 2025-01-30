@@ -63,7 +63,7 @@ const KeyValueList = ({ data, handleKeyValueClick, isLoading,isRedact,handleReda
           theme === "dark" ? "text-gray-200" : "text-gray-700"
         }`}
       >
-       {isRedact ? "Redacted Data" : "Document Details"}
+       {isRedact ? "Data To be Redacted " : "Extracted Data"}
       </h2>
      { isRedact &&
        <button

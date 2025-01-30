@@ -10,6 +10,7 @@ import "@react-pdf-viewer/search/lib/styles/index.css";
 import { FiArrowLeft, FiMoon, FiSun } from "react-icons/fi";
 import { useNavigate } from 'react-router-dom';
 const API_URL = import.meta.env.VITE_API_URL;
+import OutamationAI from "../../../public/outamation-llm.png";
 
 const fixKeys = (obj) => {
   const fixedObj = {};
@@ -174,16 +175,10 @@ const DocumentRedact = () => {
           theme === "dark" ? "bg-gray-800" : "bg-white"
         } shadow-md flex justify-between items-center px-6`}
       >
+        <img src={OutamationAI} alt="Outamation AI" onClick={() => navigate("/")} className="w-48 h-12 cursor-pointer" />
         <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
-          Document Reduction
+          Document Redaction
         </h1>
-        <p
-          className={`${
-            theme === "dark" ? "text-gray-400" : "text-gray-500"
-          } text-sm mt-1`}
-        >
-          Extract and analyze document information
-        </p>
         <div className="flex items-center gap-2">
   <button
     onClick={() => navigate('/')}
