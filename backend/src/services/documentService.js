@@ -13,7 +13,7 @@ exports.uploadDocument = async (file) => {
 }
 
 exports.getAllDocuments = async () => {
-  return await Document.find()
+  return await Document.find().sort({ uploadDate: -1 });
 }
 
 exports.updateDocument = async (docId, updateData) => {
