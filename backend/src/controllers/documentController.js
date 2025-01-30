@@ -96,7 +96,7 @@ exports.deleteDocument = async (req, res) => {
   }
 };
 
-  exports.extractPdfData = async (req, res) => {
+exports.extractPdfData = async (req, res) => {
     try {
       const document = await documentService.getDocument(req.params.id);
       if (!document) {
@@ -105,19 +105,20 @@ exports.deleteDocument = async (req, res) => {
 
       // TODO: Replace this with actual EXE execution
       // For now returning mock data
-      const mockData = {
-        "Loan Number": "Rich Dad",
-        "Loan ID": "Dad",
-        "Doc Type": "Money",
-        "Borrower 1 First Name": "impor",
-        "Borrower 1 Last Name": "this",
-        "Borrower Vesting Override": "ROBBY SMITH, AN UNMARRIED MAN",
-        "Borrower Mailing Street Address": "17344 ROSEVILLE BLVD",
-        "sample":
-          "dvdhsbvj kfbvhsfbvjfkvb sfjvbsfhvbsfj kvsf,vbsfvbsfl dvnsfvbsfjkvb sfjvsfjvbsfhvgu sfkvhsfjdv bfhvbufkd vbsvgfbsf",
-      };
+      // const mockData = {
+      //   "Loan Number": "Rich Dad",
+      //   "Loan ID": "Dad",
+      //   "Doc Type": "Money",
+      //   "Borrower 1 First Name": "impor",
+      //   "Borrower 1 Last Name": "this",
+      //   "Borrower Vesting Override": "ROBBY SMITH, AN UNMARRIED MAN",
+      //   "Borrower Mailing Street Address": "17344 ROSEVILLE BLVD",
+      //   "sample":
+      //     "dvdhsbvj kfbvhsfbvjfkvb sfjvbsfhvbsfj kvsf,vbsfvbsfl dvnsfvbsfjkvb sfjvsfjvbsfhvgu sfkvhsfjdv bfhvbufkd vbsvgfbsf",
+      // };
 
     // Get absolute path of PDF
+   if(Object.keys(document.extracted_data).length === 0)  {
     const pdfPath = path.join(__dirname, "../../", document.path);
     console.log("Original pdfPath: ", pdfPath);
     
@@ -131,7 +132,7 @@ exports.deleteDocument = async (req, res) => {
     //  });
     // const dataElements = "name,email,phone,address,city,state,zip"; // This can be dynamic
     // `${config.API_DATA_URL}/extract-data?file_path=${encodedPath}&data_elements=${dataElements}`,     
-
+  
     const response = await axios.post(
       `${config.API_DATA_URL}/extract-data?file_path=${encodedPath}`,     
        {},
@@ -148,13 +149,19 @@ exports.deleteDocument = async (req, res) => {
     }
     
     const transformedData = transformResponseData(response.data);
-    res.json(transformedData);
-
-    res.json(mockData);
+    await Document.findByIdAndUpdate(req.params.id, { extracted_data: transformedData,redacted_data: transformedData });
+  
+    return res.json(transformedData);  // ✅ Ensure only one response is sent
+  }
+else {
+  res.json(document.extracted_data);
+}
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
+
 exports.redactPdfData = async (req, res) => {
   try {
     const document = await documentService.getDocument(req.params.id);
@@ -162,6 +169,7 @@ exports.redactPdfData = async (req, res) => {
       return res.status(404).json({ message: "Document not found" });
     };
     const data = req.body;
+    console.log(data);
   
     if (!data) {
       return res.status(400).json({ message: "Data not provided" });
@@ -192,12 +200,13 @@ exports.redactPdfData = async (req, res) => {
   //  const response = await axios.post(`${config.API_DATA_URL}/extract-data`, {
   //    file_path: pdfPath
   //  });
-  const transformedData = Object.keys(data).map(key => {
-    return {
-        [key.charAt(0).toUpperCase() + key.slice(1)]: [data[key].toUpperCase()]
-    };
-});
-
+  const transformedData = Object.fromEntries(
+    Object.entries(data).map(([key, value]) => [
+      key.charAt(0).toUpperCase() + key.slice(1), value
+    ])
+  );
+  
+console.log('transformedData: ', transformedData);
 
   const response = await axios.post(
     `${config.API_DATA_URL}/redact-data?file_path=${encodedPath}`,
@@ -214,7 +223,6 @@ exports.redactPdfData = async (req, res) => {
   res.setHeader('Content-Type', 'application/pdf');
 
  
-  console.log('response: ', response);
   const pdfData = response.data;   
 
   const redactedDir = path.join(__dirname, '../../redacted-uploads');
@@ -234,10 +242,11 @@ exports.redactPdfData = async (req, res) => {
 
     await documentService.updateDocument(req.params.id, { redacted_data: data ,redacted_path});
 
-  res.send(pdfData);
+ return res.send(pdfData);
 
     // res.json(mockData);
   } catch (error) {
+    console.error("Error details:", error.response ? error.response.data : error.message);
     res.status(500).json({ message: error.message });
   }
 };

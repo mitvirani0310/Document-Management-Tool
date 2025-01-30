@@ -4,14 +4,14 @@ import { useTheme } from "../../contexts/ThemeContext";
 import axios from "axios";
 import { FiSun, FiMoon, FiUploadCloud } from "react-icons/fi";
 import DeleteConfirmationModal from "../DeleteConfirmationModal/DeleteConfirmationModal";
-import RedactInputModal from "../RedactInputModal/RedactInputModal";
+// import RedactInputModal from "../RedactInputModal/RedactInputModal";
 const API_URL = import.meta.env.VITE_API_URL;
 
 function DocumentManagement() {
   const [documents, setDocuments] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false); // Modal visibility state
-  const [isRedactModalOpen, setIsRedactModalOpen] = useState(false); // Modal visibility state
+  // const [isRedactModalOpen, setIsRedactModalOpen] = useState(false); // Modal visibility state
   const [selectedDocument, setSelectedDocument] = useState(null); // Selected document for deletion
   const [selectedDocId, setSelectedDocId] = useState(null); // Selected Doc id for deletion
   const navigate = useNavigate();
@@ -31,18 +31,18 @@ function DocumentManagement() {
   }, [fetchDocuments]);
 
 
-  const handleNextStep = (data) => {
-    console.log("Valid JSON received:", data);
-    if (selectedDocId) {
-      navigate(`/redact/${selectedDocId}?${data}`); // Redirect to specific document redact page
-    }
-  };
-  
+  // const handleNextStep = (data) => {
+  //   console.log("Valid JSON received:", data);
+  //   if (selectedDocId) {
+  //     navigate(`/redact/${selectedDocId}?${data}`); // Redirect to specific document redact page
+  //   }
+  // };
+
   // Open Redact Modal and Set Selected Document ID
-  const handleShowRedactModal = (docId) => {
-    setSelectedDocId(docId);
-    setIsRedactModalOpen(true);
-  };
+  // const handleShowRedactModal = (docId) => {
+  //   setSelectedDocId(docId);
+  //   setIsRedactModalOpen(true);
+  // };
 
   const handleFileUpload = useCallback(
     async (files) => {
@@ -76,13 +76,13 @@ function DocumentManagement() {
     [navigate]
   );
 
-  
-  // const handleShowRedactDocument = useCallback(
-  //   (documentId) => {
-  //     navigate(`/redact/${documentId}`);
-  //   },
-  //   [navigate]
-  // );
+
+  const handleShowRedactDocument = useCallback(
+    (documentId) => {
+      navigate(`/redact/${documentId}`);
+    },
+    [navigate]
+  );
 
   const handleDeleteDocument = useCallback(
     async () => {
@@ -240,11 +240,11 @@ function DocumentManagement() {
                           Extract Data
                         </button>
                         <button
-                          onClick={ () =>  handleShowRedactModal(doc._id)}
+                          onClick={() => handleShowRedactDocument(doc._id)}
                           className="px-6 py-1.5 rounded-md text-sm font-medium bg-green-600 hover:bg-green-700 text-white"
                         >
                           Redact
-                        </button> */}
+                        </button>
                         <button
                           onClick={() => handleOpenModal(doc)}
                           className="px-6 py-1.5 rounded-md text-sm font-medium bg-red-500 hover:bg-red-600 text-white"
@@ -264,12 +264,12 @@ function DocumentManagement() {
           </div>
         )}
       </div>
-      <RedactInputModal
+      {/* <RedactInputModal
         isOpen={isRedactModalOpen}
         onClose={() => setIsRedactModalOpen(false)}
         onNext={handleNextStep}
         theme="light" // or "dark"
-      />
+      /> */}
 
       {/* Delete Confirmation Modal */}
       <DeleteConfirmationModal
@@ -280,6 +280,6 @@ function DocumentManagement() {
         theme={theme}
       />
     </div>
-  );
+);
 }
 export default DocumentManagement;

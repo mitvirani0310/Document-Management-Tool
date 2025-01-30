@@ -1,6 +1,6 @@
 import { useTheme } from "../../contexts/ThemeContext";
 import React from "react";
-const KeyValueList = ({ data, handleKeyValueClick, isLoading }) => {
+const KeyValueList = ({ data, handleKeyValueClick, isLoading,isRedact,handleRedactData }) => {
   const { theme } = useTheme();
 
   if (isLoading) {
@@ -63,14 +63,17 @@ const KeyValueList = ({ data, handleKeyValueClick, isLoading }) => {
           theme === "dark" ? "text-gray-200" : "text-gray-700"
         }`}
       >
-        Data to be Redacted
+       {isRedact ? "Redacted Data" : "Document Details"}
       </h2>
-      <button
-        onClick={() => handleShowDocument(doc._id)}
-        className="px-6 py-1.5 rounded-md text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white"
-      >
-        Redact Data
-      </button>
+     { isRedact &&
+       <button
+       onClick={handleRedactData}
+       className="px-6 py-1.5 rounded-md text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white"
+     >
+       Redact Data
+     </button>
+     }
+     
       </div>
       <div className="flex-1 overflow-auto w-full">
         <table

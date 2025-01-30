@@ -13,6 +13,10 @@ const documentSchema = new mongoose.Schema({
   redacted_path: {
     type: String,
   },
+  extracted_data: {
+    type: Schema.Types.Mixed,  // Allows any type of JSON object
+    default: {}
+  },
   redacted_data: {
     type: Schema.Types.Mixed,  // Allows any type of JSON object
     default: {}

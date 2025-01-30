@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import Split from "react-split";
 import KeyValueList from "../KeyValueList/KeyValueList";
@@ -9,6 +9,18 @@ import "@react-pdf-viewer/core/lib/styles/index.css";
 import "@react-pdf-viewer/search/lib/styles/index.css";
 import { FiArrowLeft, FiMoon, FiSun } from "react-icons/fi";
 import { useNavigate } from 'react-router-dom';
+const API_URL = import.meta.env.VITE_API_URL;
+
+const fixKeys = (obj) => {
+  const fixedObj = {};
+  Object.keys(obj).forEach(key => {
+    // Remove extra double quotes from key names and keep the value as it is
+    const newKey = key.replace(/^"(.*)"$/, '$1'); // Remove leading/trailing quotes
+    fixedObj[newKey] = obj[key];
+  });
+  return fixedObj;
+};
+
 
 const DocumentRedact = () => {
   const { documentId } = useParams();
@@ -16,80 +28,116 @@ const DocumentRedact = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isExtractingData, setIsExtractingData] = useState(false);
   const [error, setError] = useState(null);
-  // const [keyValueData, setKeyValueData] = useState({});
+  const [keyValueData, setKeyValueData] = useState({});
   const { theme, toggleTheme } = useTheme();
   const pdfViewerRef = useRef(null);
   const navigate = useNavigate();
+  const hasExtractedData = useRef(false); // Ref to prevent multiple API calls
 
-  const [keyValueData] = useState({
-    "Loan Number": "Rich Dad",
-    "Loan ID": "Dad",
-    "Doc Type": "Money",
-    "Borrower 1 First Name": "impor",
-    "Borrower 1 Last Name": "this",
-    "Borrower Vesting Override": "ROBBY SMITH, AN UNMARRIED MAN",
-    "Borrower Mailing Street Address": "17344 ROSEVILLE BLVD",
-    sample:
-      "dvdhsbvj kfbvhsfbvjfkvb sfjvbsfhvbsfj kvsf,vbsfvbsfl dvnsfvbsfjkvb sfjvsfjvbsfhvgu sfkvhsfjdv bfhvbufkd vbsvgfbsf",
-  });
-
-  const extractPdfData = async (documentId) => {
-    try {
-      setIsExtractingData(true);
-      // TODO: Replace this with actual EXE execution
-      // For now using mock API call
-      const response = await fetch(`http://localhost:5000/api/documents/${documentId}/extract`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ documentId })
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to extract PDF data');
-      }
-
-      const data = await response.json();
-      setKeyValueData(data);
-    } catch (error) {
-      console.error('Error extracting PDF data:', error);
-      // Fallback to static data for now
-    } finally {
-      setIsExtractingData(false);
-    }
-  };
-
-  useEffect(() => {
+  // const [keyValueData] = useState({
+    //   "Loan Number": "Rich Dad",
+    //   "Loan ID": "Dad",
+    //   "Doc Type": "Money",
+    //   "Borrower 1 First Name": "impor",
+    //   "Borrower 1 Last Name": "this",
+    //   "Borrower Vesting Override": "ROBBY SMITH, AN UNMARRIED MAN",
+    //   "Borrower Mailing Street Address": "17344 ROSEVILLE BLVD",
+    //   sample:
+    //     "dvdhsbvj kfbvhsfbvjfkvb sfjvbsfhvbsfj kvsf,vbsfvbsfl dvnsfvbsfjkvb sfjvsfjvbsfhvgu sfkvhsfjdv bfhvbufkd vbsvgfbsf",
+    // });
+    
     const fetchDocument = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch(
-          `http://localhost:5000/api/documents/redact/${documentId}`
-        );
+        const response = await fetch(`${API_URL}/api/documents/${documentId}`);
         if (!response.ok) throw new Error("Failed to fetch document");
         const blob = await response.blob();
         const url = URL.createObjectURL(blob);
         setPdfUrl(url);
-        
-        // Fetch metadata separately
-        // const metadataResponse = await fetch(
-        //   `http://localhost:5000/api/documents/${documentId}/metadata`
-        // );
-        // if (!metadataResponse.ok) throw new Error("Failed to fetch metadata");
-        // const metadata = await metadataResponse.json();
-        // console.log("metadata: ", metadata);
-
-        // await extractPdfData(documentId);
-
       } catch (err) {
         setError(err.message);
       } finally {
         setIsLoading(false);
       }
     };
-    fetchDocument();
+
+    const extractPdfData = async (documentId) => {
+      if (hasExtractedData.current) return; // Prevent duplicate API calls
+  
+      try {
+        hasExtractedData.current = true; // Mark API call as initiated
+        setIsExtractingData(true);
+  
+        const response = await fetch(
+          `${API_URL}/api/documents/${documentId}/extract`,
+          {
+            method: "POST", 
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ documentId }),
+          }
+        );
+  
+        if (!response.ok) {
+          throw new Error("Failed to extract PDF data");
+        }
+  
+        const data = await response.json();
+        setKeyValueData(data);
+      } catch (error) {
+        console.error("Error extracting PDF data:", error);
+      } finally {
+        setIsExtractingData(false);
+      }
+    };
+  
+
+
+  useEffect(() => {
+    if (documentId) {
+      fetchDocument();
+      extractPdfData(documentId); 
+    }
   }, [documentId]);
+
+
+  const handleRedactData = async () => {
+    
+    let jsonString = JSON.stringify(keyValueData);
+
+    // Replace single quotes with double quotes
+    jsonString = jsonString.replace(/'/g, '"');
+    
+    // Parse the JSON string back to an object
+    const newObj = JSON.parse(jsonString);   
+     try {
+      const response = await fetch(`${API_URL}/api/documents/${documentId}/redact`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ newObj}),   // Ensure keyValueData is sent as part of the body
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to redact data");
+      }
+  
+      // Assuming the response is a PDF blob
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      setPdfUrl(url);  // Set the blob URL to pdfUrl
+  
+      console.log("Redaction successful, PDF updated");
+  
+      // Optionally, update state or notify the user
+    } catch (error) {
+      console.error("Error redacting data:", error);
+    }
+  };
+  
+
 
   const handleKeyValueClick = (value) => {
     if (pdfViewerRef.current) {
@@ -108,29 +156,6 @@ const DocumentRedact = () => {
       </div>
     );
 
-    // if (isLoading || isExtractingData) {
-    //   return (
-    //     <div className={`flex items-center justify-center h-screen ${
-    //       theme === "dark" ? "bg-gray-900 text-white" : "bg-white text-gray-900"
-    //     }`}>
-    //       {/* <div className="text-center">
-    //         <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500 mb-4"></div>
-    //         <p className="text-lg">
-    //           {isLoading ? "Loading PDF..." : "Extracting document data..."}
-    //         </p>
-    //       </div> */}
-    //       <div className="relative flex items-center justify-center">
-    //       <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-blue-500"></div>
-    //       <div className="absolute">
-    //         <p className={`text-base font-medium ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
-    //           Loading...
-    //         </p>
-    //       </div>
-    //     </div>
-    //     </div>
-    //   );
-    // }
-
   return (
     <div
       className={`flex flex-col h-screen ${
@@ -143,14 +168,14 @@ const DocumentRedact = () => {
         } shadow-md flex justify-between items-center px-6`}
       >
         <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
-          Document Redaction
+          Document Reduction
         </h1>
         <p
           className={`${
             theme === "dark" ? "text-gray-400" : "text-gray-500"
           } text-sm mt-1`}
         >
-          Redact and analyze document information
+          Extract and analyze document information
         </p>
         <div className="flex items-center gap-2">
   <button
@@ -189,6 +214,8 @@ const DocumentRedact = () => {
             data={keyValueData}
             handleKeyValueClick={handleKeyValueClick}
             isLoading={isExtractingData}
+            isRedact={true}
+            handleRedactData={handleRedactData}
           />
         </Split>
       </div>
