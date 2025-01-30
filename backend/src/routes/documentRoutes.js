@@ -20,7 +20,7 @@ router.get("/", documentController.getAllDocuments);
 router.get("/:id", documentController.getDocument);
 router.get("redact/:id", documentController.getRedactedDocument);
 router.get("/:id/metadata", documentController.getDocumentMetadata);
-router.delete("/:id", documentController.deleteDocument);
+router.delete("/:id", documentController.deleteDocument); 
 router.post("/:id/extract", documentController.extractPdfData);
 router.post("/:id/redact", documentController.redactPdfData);
 

@@ -6,6 +6,16 @@ const { transformResponseData } = require("../utils/execHelper");
 const config = require("../config/config");
 const axios = require("axios");
 
+
+function transformObjectToArray(obj) {
+  return [
+    Object.fromEntries(
+      Object.entries(obj).map(([key, value]) => [key, [value]])
+    )
+  ];
+}
+
+
 exports.uploadDocuments = async (req, res) => {
   try {
     if (!req.files || req.files.length === 0) {
@@ -65,7 +75,6 @@ exports.getRedactedDocument = async (req, res) => {
     // ✅ Send the file
     res.sendFile(filePath);
     
-    console.log("filePath: ", filePath);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -120,11 +129,9 @@ exports.extractPdfData = async (req, res) => {
     // Get absolute path of PDF
    if(Object.keys(document.extracted_data).length === 0)  {
     const pdfPath = path.join(__dirname, "../../", document.path);
-    console.log("Original pdfPath: ", pdfPath);
     
     // Explicitly encode the file path
     const encodedPath = encodeURIComponent(pdfPath);
-    console.log("Encoded pdfPath: ", encodedPath);
     
     //  Call extraction API with encoded path
     //  const response = await axios.post(`${config.API_DATA_URL}/extract-data`, {
@@ -169,7 +176,6 @@ exports.redactPdfData = async (req, res) => {
       return res.status(404).json({ message: "Document not found" });
     };
     const data = req.body;
-    console.log(data);
   
     if (!data) {
       return res.status(400).json({ message: "Data not provided" });
@@ -200,14 +206,10 @@ exports.redactPdfData = async (req, res) => {
   //  const response = await axios.post(`${config.API_DATA_URL}/extract-data`, {
   //    file_path: pdfPath
   //  });
-  const transformedData = Object.fromEntries(
-    Object.entries(data).map(([key, value]) => [
-      key.charAt(0).toUpperCase() + key.slice(1), value
-    ])
-  );
-  
-console.log('transformedData: ', transformedData);
 
+  const transformedData = transformObjectToArray(data);
+    
+  
   const response = await axios.post(
     `${config.API_DATA_URL}/redact-data?file_path=${encodedPath}`,
     transformedData,
@@ -219,10 +221,10 @@ console.log('transformedData: ', transformedData);
       responseType: 'arraybuffer'  // To handle binary data (PDF)
     }
   );
-
+  
   res.setHeader('Content-Type', 'application/pdf');
-
- 
+  
+  
   const pdfData = response.data;   
 
   const redactedDir = path.join(__dirname, '../../redacted-uploads');
