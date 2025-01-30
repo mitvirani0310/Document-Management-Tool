@@ -111,7 +111,7 @@ const PDFViewer = forwardRef(({ pdfUrl, isLoading,fileName }, ref) => {
           searchButtonRef={searchButtonRef}
           showBookmarks={showBookmarks}
         />
-        {fileName && <span  className={`text-sm mx-3 ${
+        {fileName && <span  className={`text-sm mx-3 font-semibold ${
                   theme === "dark" ? "text-gray-300" : "text-gray-600"
                 }`}>{fileName}</span>}
         <div className="flex items-center gap-2" data-theme={theme}>

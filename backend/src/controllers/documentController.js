@@ -132,7 +132,7 @@ exports.extractPdfData = async (req, res) => {
       // };
 
     // Get absolute path of PDF
-   if(Object.keys(document.extracted_data).length === 0)  {
+  //  if(Object.keys(document.extracted_data).length === 0)  {
     const pdfPath = path.join(__dirname, "../../", document.path);
     
     // Explicitly encode the file path
@@ -164,10 +164,10 @@ exports.extractPdfData = async (req, res) => {
     await Document.findByIdAndUpdate(req.params.id, { extracted_data: transformedData,redacted_data: transformedData });
   
     return res.json(transformedData);  // ✅ Ensure only one response is sent
-  }
-else {
-  res.json(document.extracted_data);
-}
+  // }
+// else {
+//   res.json(document.extracted_data);
+// }
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -253,7 +253,6 @@ exports.redactPdfData = async (req, res) => {
 
     // res.json(mockData);
   } catch (error) {
-    console.error("Error details:", error.response ? error.response.data : error.message);
     res.status(500).json({ message: error.message });
   }
 };
