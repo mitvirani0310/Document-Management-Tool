@@ -12,17 +12,20 @@ const executeExe = async (exePath, pdfPath) => {
 };
 
 const transformResponseData = (data) => {
-  const result = {};
+  const transformedData = {};
   
-  data.forEach(obj => {
-    Object.entries(obj).forEach(([key, valueArray]) => {
-      if (!result[key]) {
-        result[key] = valueArray[0];
-      }
-    });
+  // Loop through each key in the data object
+  Object.keys(data).forEach(key => {
+    // Convert key to camelCase
+    const camelKey = key.replace(/\s(.)/g, (match) => match[1].toUpperCase())
+                       .replace(/\s/g, '')
+                       .replace(/^(.)/, (match) => match.toLowerCase());
+    
+    // Get first value from array
+    transformedData[camelKey] = data[key][0];
   });
   
-  return result;
+  return transformedData;
 };
 
 module.exports = { executeExe, transformResponseData };

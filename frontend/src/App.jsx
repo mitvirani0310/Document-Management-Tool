@@ -3,6 +3,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import DocumentManagement from './components/DocumentManagement/DocumentManagement';
 import DocumentViewer from './components/DocumentViewer/DocumentViewer';
 import DocumentRedact from './components/DocumentRedact/DocumentRedact';
+import DocumentSearch from './components/DocumentSearch/DocumentSearch';
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
         <Route path="/" element={<DocumentManagement />} />
         <Route path="/viewer/:documentId" element={<DocumentViewer />} />
         <Route path="/redact/:documentId" element={<DocumentRedact />} />
+        <Route path="/search/:documentId" element={<DocumentSearch />} />
       </Routes>
     </ThemeProvider>
   );

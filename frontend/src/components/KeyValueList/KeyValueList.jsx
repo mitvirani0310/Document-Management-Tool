@@ -1,6 +1,6 @@
 import { useTheme } from "../../contexts/ThemeContext";
 import React from "react";
-const KeyValueList = ({ data, handleKeyValueClick, isLoading,isRedact,handleRedactData }) => {
+const KeyValueList = ({ data, handleKeyValueClick, isLoading,isRedact,handleRedactData,handleExtractData,isSearchable }) => {
   const { theme } = useTheme();
 
   if (isLoading) {
@@ -40,6 +40,17 @@ const KeyValueList = ({ data, handleKeyValueClick, isLoading,isRedact,handleReda
           theme === "dark" ? "bg-gray-800" : "bg-white"
         } rounded-lg shadow-lg p-4`}
       >
+         { isSearchable &&
+      <div className="flex justify-end mb-4">
+      <button
+        onClick={handleExtractData}
+        className="px-6 py-1.5 rounded-md text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white"
+      >
+        Extract Data
+      </button>
+    </div>
+     }
+     
         <p
           className={`text-center ${
             theme === "dark" ? "text-gray-400" : "text-gray-600"
