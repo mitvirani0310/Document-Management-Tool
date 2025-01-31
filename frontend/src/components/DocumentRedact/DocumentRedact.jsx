@@ -25,6 +25,8 @@ const DocumentRedact = () => {
   const navigate = useNavigate();
   const hasExtractedData = useRef(false); // Ref to prevent multiple API calls
   const [isRedacting, setIsRedacting] = useState(false);
+  const [isRedacted,setIsRedacted] = useState(false);
+
   // const [keyValueData] = useState({
     //   "Loan Number": "Rich Dad",
     //   "Loan ID": "Dad",
@@ -128,13 +130,23 @@ const DocumentRedact = () => {
       if(response.ok){
         setIsLoading(false);
         setIsRedacting(false);
+        setIsRedacted(true);    
+       
       }
+    
       // Set the blob URL to pdfUrl
       // Optionally, update state or notify the user
     } catch (error) {
       console.error("Error redacting data:", error);
     }
   };
+
+  useEffect(() => { 
+    if(isRedacted){
+      setDocumentName(documentName + "_redacted.pdf");
+    } 
+
+  },[isRedacted] );
   
 
 

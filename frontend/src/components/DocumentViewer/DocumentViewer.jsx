@@ -52,7 +52,7 @@ const DocumentViewer = () => {
         if (contentDisposition) {
           const match = contentDisposition.match(/filename="(.+)"/);
           if (match && match[1]) {
-            filename = match[1].replace(/\.pdf$/, ""); // Removes only `.pdf` from the end
+            filename = match[1]; // Removes only `.pdf` from the end
           }
         }
         
@@ -95,9 +95,6 @@ const DocumentViewer = () => {
         setIsExtractingData(false);
       }
     };
-  
-
-
   useEffect(() => {
     if (documentId) {
       fetchDocument();

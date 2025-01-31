@@ -103,7 +103,7 @@ const PDFViewer = forwardRef(({ pdfUrl, isLoading, fileName, isRedacting }, ref)
         theme === "dark" ? "bg-gray-800" : "bg-white"
       } rounded-lg shadow-lg`}
     >
-      <div className="p-4 flex items-center justify-between">
+      <div className="px-4 pt-1 flex items-center justify-between">
         <SearchSidebar
           searchPluginInstance={searchPluginInstance}
           searchQuery={searchQuery}
@@ -111,9 +111,7 @@ const PDFViewer = forwardRef(({ pdfUrl, isLoading, fileName, isRedacting }, ref)
           searchButtonRef={searchButtonRef}
           showBookmarks={showBookmarks}
         />
-        {fileName && <span  className={`text-sm mx-3 font-semibold ${
-                  theme === "dark" ? "text-gray-300" : "text-gray-600"
-                }`}>{fileName}</span>}
+       
         <div className="flex items-center gap-2" data-theme={theme}>
         <ZoomOutButton pclassName="rv-zoom__button" />
               <ZoomPopover className="rpv-zoom__popover"/>
@@ -144,6 +142,9 @@ const PDFViewer = forwardRef(({ pdfUrl, isLoading, fileName, isRedacting }, ref)
           </button>
         </div>
       </div>
+      {fileName && <span  className={`text-sm  ml-7 mb-2 mx-3 font-semibold ${
+                  theme === "dark" ? "text-gray-300" : "text-gray-600"
+                }`}><span className="text-blue-600">{"File Name : "}</span>{fileName}</span>}
 
       {pdfUrl ? (
         <div className="flex flex-1 overflow-hidden">
