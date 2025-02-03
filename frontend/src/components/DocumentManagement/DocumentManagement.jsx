@@ -7,6 +7,8 @@ import DeleteConfirmationModal from "../DeleteConfirmationModal/DeleteConfirmati
 // import RedactInputModal from "../RedactInputModal/RedactInputModal";
 const API_URL = import.meta.env.VITE_API_URL;
 import OutamationAI from "../../../public/outamation-llm.png";
+import { ToastContainer, toast } from "react-toastify"
+import "react-toastify/dist/ReactToastify.css"
 
 
 function DocumentManagement() {
@@ -19,6 +21,7 @@ function DocumentManagement() {
   const [isUploading, setIsUploading] = useState(false)
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
+  
 
   const fetchDocuments = useCallback(async () => {
     try {
@@ -63,9 +66,29 @@ function DocumentManagement() {
               headers: { "Content-Type": "multipart/form-data" },
             }
           );
-          fetchDocuments();
+          await fetchDocuments()
+          toast.success("Files uploaded successfully!", {
+            position: "bottom-center",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: theme,
+          })
         } catch (error) {
           console.error("Error uploading files:", error);
+          toast.error("Error uploading files!", {
+            position: "bottom-center",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: theme,
+          })
         }
         finally {
           setIsUploading(false)
@@ -105,8 +128,26 @@ function DocumentManagement() {
           fetchDocuments();
           setIsModalOpen(false); // Close the modal
           setSelectedDocument(null); // Clear the selected document
+          toast.success(`Deleted "${selectedDocument.name}" successfully`, {
+            position: "bottom-center",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+          })
         } catch (error) {
           console.error("Error deleting document:", error);
+          toast.error("Error deleting document", {
+            position: "bottom-center",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+          })
         }
       }
     },
@@ -314,6 +355,7 @@ function DocumentManagement() {
         documentName={selectedDocument?.name}
         theme={theme}
       />
+      <ToastContainer position="bottom-center" theme={theme} />
     </div>
 );
 }
