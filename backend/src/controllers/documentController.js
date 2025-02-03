@@ -160,7 +160,8 @@ exports.extractPdfData = async (req, res) => {
       throw new Error('No data received from extraction API');
     }
     
-    const transformedData = transformResponseData(response.data);
+    // const transformedData = transformResponseData(response.data);
+    const transformedData = response.data;
     await Document.findByIdAndUpdate(req.params.id, { extracted_data: transformedData,redacted_data: transformedData });
   
     return res.json(transformedData);  // ✅ Ensure only one response is sent
@@ -212,8 +213,9 @@ exports.redactPdfData = async (req, res) => {
   //    file_path: pdfPath
   //  });
 
-  const transformedData = transformObjectToArray(data);
-    
+  // const transformedData = transformObjectToArray(data);
+  const transformedData = data;
+  
   
   const response = await axios.post(
     `${config.API_DATA_URL}/redact-data?file_path=${encodedPath}`,
@@ -249,7 +251,7 @@ exports.redactPdfData = async (req, res) => {
 
     await documentService.updateDocument(req.params.id, { redacted_data: data ,redacted_path});
 
- return res.send(pdfData);
+    return res.send(pdfData);
 
     // res.json(mockData);
   } catch (error) {
