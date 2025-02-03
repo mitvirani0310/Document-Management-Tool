@@ -16,6 +16,7 @@ function DocumentManagement() {
   // const [isRedactModalOpen, setIsRedactModalOpen] = useState(false); // Modal visibility state
   const [selectedDocument, setSelectedDocument] = useState(null); // Selected document for deletion
   const [selectedDocId, setSelectedDocId] = useState(null); // Selected Doc id for deletion
+  const [isUploading, setIsUploading] = useState(false)
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
 
@@ -40,7 +41,6 @@ function DocumentManagement() {
   //   }
   // };
 
-  // Open Redact Modal and Set Selected Document ID
   // const handleShowRedactModal = (docId) => {
   //   setSelectedDocId(docId);
   //   setIsRedactModalOpen(true);
@@ -55,6 +55,7 @@ function DocumentManagement() {
         }
 
         try {
+          setIsUploading(true)
           await axios.post(
             `${API_URL}/api/documents/upload`,
             formData,
@@ -65,6 +66,9 @@ function DocumentManagement() {
           fetchDocuments();
         } catch (error) {
           console.error("Error uploading files:", error);
+        }
+        finally {
+          setIsUploading(false)
         }
       }
     },
@@ -196,8 +200,22 @@ function DocumentManagement() {
           </div>
         </div>
 
-        {/* Documents Table */}
-        {documents.length > 0 ? (
+        {isUploading ? (
+         <div
+             className={`flex items-center justify-center h-[calc(100vh-250px)] ${
+             theme === "dark" ? "bg-gray-800" : "bg-white"
+             }`}
+         >
+         <div className="relative flex items-center justify-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-blue-500"></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <p className={`text-base font-medium ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                {"Uploading files..."}
+              </p>
+            </div>
+            </div>
+         </div>
+       ): documents.length > 0 ? (
           <div className={`shadow-md rounded-lg overflow-hidden ${theme === "dark" ? "bg-gray-800" : "bg-white"}`}>
             <div className="h-[calc(100vh-250px)] overflow-auto">
               <table className={`w-full ${theme === "dark" ? "bg-gray-800" : "bg-white"}`}>
