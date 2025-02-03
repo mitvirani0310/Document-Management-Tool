@@ -9,15 +9,16 @@ import "@react-pdf-viewer/core/lib/styles/index.css";
 import "@react-pdf-viewer/search/lib/styles/index.css";
 import { FiArrowLeft, FiMoon, FiSun } from "react-icons/fi";
 import { useNavigate } from 'react-router-dom';
-const API_URL = import.meta.env.VITE_API_URL;
 import OutamationAI from "../../../public/outamation-llm.png";
+const API_URL = import.meta.env.VITE_API_URL;
 
-const DocumentRedact = () => {
+
+const DocumentSearch = () => {
   const { documentId } = useParams();
   const [pdfUrl, setPdfUrl] = useState(null);
+  const [documentName, setDocumentName] = useState();
   const [isLoading, setIsLoading] = useState(true);
   const [isExtractingData, setIsExtractingData] = useState(false);
-  const [documentName, setDocumentName] = useState();
   const [error, setError] = useState(null);
   const [keyValueData, setKeyValueData] = useState({});
   const { theme, toggleTheme } = useTheme();
@@ -25,7 +26,6 @@ const DocumentRedact = () => {
   const navigate = useNavigate();
   const hasExtractedData = useRef(false); // Ref to prevent multiple API calls
   const [isRedacting, setIsRedacting] = useState(false);
-  const [isRedacted,setIsRedacted] = useState(false);
 
   // const [keyValueData] = useState({
     //   "Loan Number": "Rich Dad",
@@ -44,17 +44,15 @@ const DocumentRedact = () => {
         setIsLoading(true);
         const response = await fetch(`${API_URL}/api/documents/${documentId}`);
         if (!response.ok) throw new Error("Failed to fetch document");
-       
         const blob = await response.blob();
         const url = URL.createObjectURL(blob);
-
         const contentDisposition = response.headers.get("Content-Disposition");
         let filename = "";
         
         if (contentDisposition) {
           const match = contentDisposition.match(/filename="(.+)"/);
           if (match && match[1]) {
-            filename = match[1]; // Removes only `.pdf` from the end
+            filename = match[1].replace(/\.pdf$/, ""); // Removes only `.pdf` from the end
           }
         }
         
@@ -103,51 +101,8 @@ const DocumentRedact = () => {
   useEffect(() => {
     if (documentId) {
       fetchDocument();
-      extractPdfData(documentId); 
     }
   }, [documentId]);
-
-
-  const handleRedactData = async () => {
-    setIsLoading(true);  
-    setIsRedacting(true);
-     try {
-      const response = await fetch(`${API_URL}/api/documents/${documentId}/redact`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify( keyValueData ),   // Ensure keyValueData is sent as part of the body
-      });
-  
-      if (!response.ok) {
-        throw new Error("Failed to redact data");
-      }
-      // Assuming the response is a PDF blob
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      setPdfUrl(url);
-      if(response.ok){
-        setIsLoading(false);
-        setIsRedacting(false);
-        setIsRedacted(true);    
-       
-      }
-    
-      // Set the blob URL to pdfUrl
-      // Optionally, update state or notify the user
-    } catch (error) {
-      console.error("Error redacting data:", error);
-    }
-  };
-
-  useEffect(() => { 
-    if(isRedacted){
-      setDocumentName(documentName + "_redacted.pdf");
-    } 
-
-  },[isRedacted] );
-  
 
 
   const handleKeyValueClick = (value) => {
@@ -178,9 +133,9 @@ const DocumentRedact = () => {
           theme === "dark" ? "bg-gray-800" : "bg-white"
         } shadow-md flex justify-between items-center px-6`}
       >
-        <img src={OutamationAI} alt="Outamation AI" onClick={() => navigate("/")} className="w-48 h-12 cursor-pointer" />
+         <img src={OutamationAI} alt="Outamation AI" onClick={() => navigate("/")} className="w-48 h-12 cursor-pointer" />
         <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
-          Document Redaction
+          Make your document searchable
         </h1>
         <div className="flex items-center gap-2">
   <button
@@ -219,8 +174,8 @@ const DocumentRedact = () => {
             data={keyValueData}
             handleKeyValueClick={handleKeyValueClick}
             isLoading={isExtractingData}
-            isRedact={true}
-            handleRedactData={handleRedactData}
+            isSearchable={true}
+            handleExtractData={()=> extractPdfData(documentId)}
           />
         </Split>
       </div>
@@ -228,4 +183,4 @@ const DocumentRedact = () => {
   );
 };
 
-export default DocumentRedact;
+export default DocumentSearch;

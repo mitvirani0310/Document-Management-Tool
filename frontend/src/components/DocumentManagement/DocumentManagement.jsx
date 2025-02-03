@@ -86,6 +86,13 @@ function DocumentManagement() {
     [navigate]
   );
 
+  const handleSearchableDocument = useCallback(
+    (documentId) => {
+      navigate(`/search/${documentId}`);
+    },
+    [navigate]
+  );
+
   const handleDeleteDocument = useCallback(
     async () => {
       if (selectedDocument) {
@@ -237,6 +244,12 @@ function DocumentManagement() {
                         {(doc.size / (1024 * 1024)).toFixed(2)} MB
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
+                      {/* <button
+                          onClick={() => handleSearchableDocument(doc._id)}
+                          className="px-4 py-1.5 rounded-md text-sm font-medium bg-orange-500 hover:bg-orange-600 text-white"
+                        >
+                          Make  Searchable
+                        </button> */}
                         <button
                           onClick={() => handleShowDocument(doc._id)}
                           className="px-6 py-1.5 rounded-md text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white"
