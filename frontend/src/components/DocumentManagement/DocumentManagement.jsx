@@ -18,17 +18,22 @@ function DocumentManagement() {
   // const [isRedactModalOpen, setIsRedactModalOpen] = useState(false); // Modal visibility state
   const [selectedDocument, setSelectedDocument] = useState(null); // Selected document for deletion
   const [selectedDocId, setSelectedDocId] = useState(null); // Selected Doc id for deletion
-  const [isUploading, setIsUploading] = useState(false)
+  const [isUploading, setIsUploading] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
   
 
   const fetchDocuments = useCallback(async () => {
     try {
+      setIsFetching(true);
       const response = await axios.get(`${API_URL}/api/documents`);
       setDocuments(response.data);
     } catch (error) {
       console.error("Error fetching documents:", error);
+    }
+    finally {
+      setIsFetching(false);
     }
   }, []);
 
@@ -241,7 +246,7 @@ function DocumentManagement() {
           </div>
         </div>
 
-        {isUploading ? (
+        {isUploading || isFetching ? (
          <div
              className={`flex items-center justify-center h-[calc(100vh-250px)] ${
              theme === "dark" ? "bg-gray-800" : "bg-white"
@@ -251,7 +256,7 @@ function DocumentManagement() {
             <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-blue-500"></div>
             <div className="absolute inset-0 flex items-center justify-center">
               <p className={`text-base font-medium ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
-                {"Uploading files..."}
+              {isUploading ? "Uploading files..." : "Fetching files..."}
               </p>
             </div>
             </div>
