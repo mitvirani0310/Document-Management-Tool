@@ -23,7 +23,10 @@ const CustomDropdown = ({ options, onSelect, theme, defaultOption }) => {
  
   const handleSelect = (option) => {
     setSelectedOption(option)
-    onSelect(option.value)
+    onSelect({
+      label: option.label,
+      value: option.value
+    })
     setIsOpen(false)
   }
  
@@ -45,10 +48,10 @@ const CustomDropdown = ({ options, onSelect, theme, defaultOption }) => {
 `
  
   return (
-    <div className="relative inline-block text-left w-40 z-30" ref={dropdownRef}>
+    <div className="relative inline-block text-left w-35 z-30" ref={dropdownRef}>
       <div>
         <button type="button" onClick={handleToggle} className={buttonClasses}>
-          {selectedOption ? selectedOption.label : "Select Profile"}
+          {selectedOption ? selectedOption.label : "Profile"}
           <ChevronDown className="w-5 h-5 ml-2 -mr-1" aria-hidden="true" />
         </button>
       </div>

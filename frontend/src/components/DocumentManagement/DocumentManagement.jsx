@@ -9,6 +9,8 @@ const API_URL = import.meta.env.VITE_API_URL
 import OutamationAI from "../../../public/outamation-llm.png"
 import { ToastContainer, toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
+import {options} from "../../utils/formatters"
+import { useDocumentType } from "../../contexts/DocumentTypeContext"
 
 function DocumentManagement() {
   const [documents, setDocuments] = useState([])
@@ -18,7 +20,7 @@ function DocumentManagement() {
   const [selectedDocId, setSelectedDocId] = useState(null)
   const [isUploading, setIsUploading] = useState(false)
   const [isFetching, setIsFetching] = useState(false)
-  const [selectedDocumentType, setSelectedDocumentType] = useState("default")
+  const { selectedDocumentType, setSelectedDocumentType } = useDocumentType()
   const navigate = useNavigate()
   const { theme, toggleTheme } = useTheme()
 
@@ -153,10 +155,13 @@ function DocumentManagement() {
     handleFileUpload(files)
   }
 
-  const handleDocumentTypeChange = (value) => {
-    setSelectedDocumentType(value)
-    // You can add logic here to filter documents based on the selected type
-  }
+  const handleDocumentTypeChange = ( label, value ) => {
+    // Now you have access to both label and value
+    console.log('Selected label:', label);
+    console.log('Selected value:', value);
+    setSelectedDocumentType({ label, value });
+    // ...rest of your handling logic
+  };
 
   return (
     <div className={`h-screen flex flex-col ${theme === "dark" ? "bg-gray-900 text-white" : "bg-white text-gray-900"}`}>
@@ -247,12 +252,12 @@ function DocumentManagement() {
                   <div className="flex flex-wrap justify-between items-center">
                   <span>  Actions</span>
                       <CustomDropdown
-                        options={[
-                          { value: "default", label: "Default" },
-                          { value: "mortgage", label: "Mortgage" },
-                        ]}
-                        defaultOption="default"
-                        onSelect={handleDocumentTypeChange}
+                        options={options}
+                        defaultOption={selectedDocumentType.value}
+                        onSelect={({ label, value }) => {
+                          handleDocumentTypeChange(label, value );
+                          // Your handler logic
+                        }}
                         theme={theme}
                       />
                   </div>

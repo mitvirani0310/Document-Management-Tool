@@ -116,6 +116,8 @@ exports.extractPdfData = async (req, res) => {
       if (!document) {
         return res.status(404).json({ message: "Document not found" });
       }
+      const {data : data_elements} = req.body;
+      // console.log('data_elements: ', data_elements);
 
       // TODO: Replace this with actual EXE execution
       // For now returning mock data
@@ -143,18 +145,33 @@ exports.extractPdfData = async (req, res) => {
     //    file_path: pdfPath
     //  });
     // const dataElements = "name,email,phone,address,city,state,zip"; // This can be dynamic
-    // `${config.API_DATA_URL}/extract-data?file_path=${encodedPath}&data_elements=${dataElements}`,     
+    // `${config.API_DATA_URL}/extract-data?file_path=${encodedPath}&data_elements=${dataElements}`, 
   
-    const response = await axios.post(
-      `${config.API_DATA_URL}/extract-data?file_path=${encodedPath}`,     
-       {},
-      {
-        headers: {
-          'accept': 'application/json',
-          'Content-Type': 'application/json'
-        }
-      }
-    );
+    // const response = await axios.post(
+    //   `${config.API_DATA_URL}/extract-data?file_path=${encodedPath}&data_elements=${data_elements}`,     
+    //   {},
+    //   {
+    //     headers: {
+    //       'accept': 'application/json',
+    //       'Content-Type': 'application/json'
+    //     }
+    //   }
+    // );
+    const baseUrl = `${config.API_DATA_URL}/extract-data?file_path=${encodedPath}`;
+const apiUrl = data_elements === "default" 
+  ? baseUrl
+  : `${baseUrl}&data_elements=${data_elements}`;
+
+const response = await axios.post(
+  apiUrl,     
+  {},
+  {
+    headers: {
+      'accept': 'application/json',
+      'Content-Type': 'application/json'
+    }
+  }
+);
     
     if (!response) {
       throw new Error('No data received from extraction API');

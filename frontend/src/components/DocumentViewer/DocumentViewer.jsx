@@ -10,6 +10,7 @@ import "@react-pdf-viewer/search/lib/styles/index.css";
 import { FiArrowLeft, FiMoon, FiSun } from "react-icons/fi";
 import { useNavigate } from 'react-router-dom';
 import OutamationAI from "../../../public/outamation-llm.png";
+import { useDocumentType } from "../../contexts/DocumentTypeContext";
 const API_URL = import.meta.env.VITE_API_URL;
 
 
@@ -19,6 +20,8 @@ const DocumentViewer = () => {
   const [documentName, setDocumentName] = useState();
   const [isLoading, setIsLoading] = useState(true);
   const [isExtractingData, setIsExtractingData] = useState(false);
+    const { selectedDocumentType, setSelectedDocumentType } = useDocumentType();
+  
   const [error, setError] = useState(null);
   const [keyValueData, setKeyValueData] = useState({});
   const { theme, toggleTheme } = useTheme();
@@ -66,8 +69,10 @@ const DocumentViewer = () => {
     };
 
     const extractPdfData = async (documentId) => {
-      if (hasExtractedData.current) return; // Prevent duplicate API calls
-  
+      if (hasExtractedData.current) return; 
+      // Prevent duplicate API calls
+  console.log("selected-type : ", selectedDocumentType);
+  const checkProfile = selectedDocumentType.value === "null" ? "default" : selectedDocumentType.value;
       try {
         hasExtractedData.current = true; // Mark API call as initiated
         setIsExtractingData(true);
@@ -79,7 +84,7 @@ const DocumentViewer = () => {
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ documentId }),
+            body: JSON.stringify({ data: checkProfile }), // Wrap inside an object
           }
         );
   
@@ -133,7 +138,7 @@ const DocumentViewer = () => {
       >
          <img src={OutamationAI} alt="Outamation AI" onClick={() => navigate("/")} className="w-48 h-12 cursor-pointer" />
         <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
-          Document Extraction
+          Document Extraction 
         </h1>
         <div className="flex items-center gap-2">
   <button
