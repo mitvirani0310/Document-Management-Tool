@@ -5,7 +5,7 @@ import axios from "axios";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-const ProfileModal = ({ isOpen, onClose, profile, theme }) => {
+const ProfileModal = ({ isOpen, onClose, profile, theme, onProfileUpdate }) => {
   const [profileName, setProfileName] = useState("");
   const [profileFields, setProfileFields] = useState({});
 
@@ -43,8 +43,8 @@ const ProfileModal = ({ isOpen, onClose, profile, theme }) => {
       
       onClose();
       // Trigger a refresh in the parent component
-      if (typeof onSave === 'function') {
-        onSave();
+      if (typeof onProfileUpdate === 'function') {
+        onProfileUpdate();
       }
     } catch (error) {
       console.error("Error saving profile:", error);

@@ -4,7 +4,7 @@ import axios from "axios"
 import { useDocumentType } from "../../contexts/DocumentTypeContext"
 
 const API_URL = import.meta.env.VITE_API_URL
-const CustomDropdown = ({ onSelect, theme, defaultOption }) => {
+const CustomDropdown = ({ onSelect, theme, defaultOption, fetchProfiles }) => {
   const [isOpen, setIsOpen] = useState(false)
   const [options, setOptions] = useState([])
   const [selectedOption, setSelectedOption] = useState(null)
@@ -12,23 +12,24 @@ const CustomDropdown = ({ onSelect, theme, defaultOption }) => {
   const dropdownRef = useRef(null)
 
   useEffect(() => {
-    const fetchProfiles = async () => {
+    const fetchProfilesInternal = async () => {
       try {
         const response = await axios.get(`${API_URL}/api/profiles`);
         setOptions(response.data);
 
         if (selectedDocumentType?._id) {
-            const matchingOption = response.data.find(opt => opt._id === selectedDocumentType._id)
-            if (matchingOption) {
-              setSelectedOption(matchingOption)
-            }
+          const matchingOption = response.data.find(opt => opt._id === selectedDocumentType._id);
+          if (matchingOption) {
+            setSelectedOption(matchingOption);
           }
+        }
       } catch (error) {
         console.error("Error fetching profiles:", error);
       }
     };
-    fetchProfiles();
-  }, []);
+
+    fetchProfilesInternal();
+  }, [selectedDocumentType, fetchProfiles]);
 
   const handleSelect = (option) => {
     setSelectedOption(option);

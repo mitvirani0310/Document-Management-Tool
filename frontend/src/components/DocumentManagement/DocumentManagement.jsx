@@ -211,6 +211,7 @@ function DocumentManagement() {
               onSelect={handleDocumentTypeChange}
               theme={theme}
               defaultOption={selectedDocumentType?.value}
+              fetchProfiles={fetchProfiles} 
             />
             <button
               onClick={toggleTheme}
@@ -376,6 +377,7 @@ function DocumentManagement() {
         onClose={handleCloseProfileModal}
         profile={selectedProfile}
         theme={theme}
+        onProfileUpdate={fetchProfiles}
       />
       <ToastContainer position="bottom-center" theme={theme} />
     </div>
