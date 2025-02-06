@@ -32,10 +32,8 @@ const ProfileModal = ({ isOpen, onClose, profile, theme, onProfileUpdate }) => {
     if (profile) {
       setProfileName(profile.label);
       
-      // Convert comma-separated string to array
       const values = profile.value.split(',').map((item) => item.trim());
       
-      // Convert array into array of objects with label and value
       const fieldsArray = values.map((value) => ({
         label: value,
         value: value
@@ -44,6 +42,7 @@ const ProfileModal = ({ isOpen, onClose, profile, theme, onProfileUpdate }) => {
       setOptions(fieldsArray);
     } else {
       setProfileName("");
+      setOptions([]); 
     }
   }, [profile]);
   
