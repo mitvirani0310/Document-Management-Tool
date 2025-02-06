@@ -2,42 +2,65 @@ import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import axios from "axios";
+import CreatableSelect from 'react-select/creatable';
+
+const colorOptions = [
+  {
+    label:"Name",
+    value:"name"
+  },
+  {
+    label:"Email",
+    value:"email"
+  },
+  {
+    label:"Address",
+    value:"address"
+  },
+]
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 const ProfileModal = ({ isOpen, onClose, profile, theme, onProfileUpdate }) => {
   const [profileName, setProfileName] = useState("");
   const [profileFields, setProfileFields] = useState({});
+  const [options,setOptions] = useState();
+  const [editOptions,setEditOptions] = useState();
+
 
   useEffect(() => {
-    if (isOpen) {
-      if (profile) {
-        // Editing existing profile
-        setProfileName(profile.label || "");
-        const values = profile.value.split(',');
-        const fields = {};
-        values.forEach((value, index) => {
-          fields[`field${index + 1}`] = value;
-        });
-        setProfileFields(fields);
-      } else {
-        // Adding new profile - reset all fields
-        setProfileName("");
-        setProfileFields({});
-      }
+    if (profile) {
+      setProfileName(profile.label);
+      
+      // Convert comma-separated string to array
+      const values = profile.value.split(',').map((item) => item.trim());
+      
+      // Convert array into array of objects with label and value
+      const fieldsArray = values.map((value) => ({
+        label: value,
+        value: value
+      }));
+  
+      setOptions(fieldsArray);
+    } else {
+      setProfileName("");
     }
-  }, [isOpen, profile]);
-
+  }, [profile]);
+  
 
   const handleSave = async () => {
     try {
-      const valueString = Object.values(profileFields)
-        .filter(value => value.trim() !== '')
-        .join(',');
+      // const valueString = Object.values(profileFields)
+      //   .filter(value => value.trim() !== '')
+      //   .join(',');
+      if(!editOptions){
+        console.error("Please input with fields", error);
+
+      }
   
       const profileData = {
         label: profileName,
-        value: valueString
+        value: editOptions
       };
   
       if (profile?._id) {
@@ -68,6 +91,26 @@ const ProfileModal = ({ isOpen, onClose, profile, theme, onProfileUpdate }) => {
     }
     setProfileFields(updatedFields);
   };
+
+  const handleMultiInput = (e) => {
+    console.log('e: ', e);
+    // console.log("options: ", options);
+  
+    // // Create a union of both arrays using a Map (to ensure uniqueness based on `label`)
+    // const mergedArray = [...options, ...e].reduce((acc, item) => {
+    //   acc.set(item.label, item); // Using label as the unique key
+    //   return acc;
+    // }, new Map());
+  
+    // // Convert the map values back to an array
+    // const uniqueArray = Array.from(mergedArray.values());
+  
+    // Extract labels and join them into a string
+    const result = e.map(item => item.label).join(', ');
+  setOptions(e)
+    setEditOptions(result);
+  };
+  
 
   if (!isOpen) return null;
 
@@ -109,6 +152,7 @@ const ProfileModal = ({ isOpen, onClose, profile, theme, onProfileUpdate }) => {
             <input
               type="text"
               id="profileName"
+              placeholder="John Doe"
               value={profileName}
               onChange={(e) => setProfileName(e.target.value)}
               className={`mt-1 block w-full rounded-md ${
@@ -118,18 +162,18 @@ const ProfileModal = ({ isOpen, onClose, profile, theme, onProfileUpdate }) => {
               } border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50`}
             />
           </div>
-          <div>
           <label
-              htmlFor="profileName"
+              htmlFor="Add Keys"
               className={`block text-sm font-medium ${
                 theme === "dark" ? "text-gray-300" : "text-gray-700"
               }`}
             >
-              Add the key for extracting...
+              Add Keys
             </label>
-          </div>
 
-          {Object.entries(profileFields).map(([key, value], index) => (
+          <CreatableSelect isMulti options={options} onChange={(e) => handleMultiInput(e)} value={options}/>
+
+          {/* {Object.entries(profileFields).map(([key, value], index) => (
             <div key={index} className="flex space-x-2">
               <input
                 type="text"
@@ -143,14 +187,14 @@ const ProfileModal = ({ isOpen, onClose, profile, theme, onProfileUpdate }) => {
                 } border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50`}
               />
             </div>
-          ))}
+          ))} */}
 
-          <button
+          {/* <button
             onClick={handleAddField}
             className="w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
-            Add key
-          </button>
+            Add Field
+          </button> */}
         </div>
 
         <div className="flex justify-end space-x-3 mt-6">

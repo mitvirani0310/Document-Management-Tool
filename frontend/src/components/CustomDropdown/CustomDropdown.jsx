@@ -95,7 +95,7 @@ const CustomDropdown = ({ onSelect, theme, defaultOption, fetchProfiles }) => {
   `
 
   return (
-    <div className="relative inline-block text-left w-48 z-50" ref={dropdownRef}>
+    <div className="relative inline-block text-left w-40 z-50" ref={dropdownRef}>
       <button 
         type="button" 
         onClick={() => setIsOpen(!isOpen)} 
