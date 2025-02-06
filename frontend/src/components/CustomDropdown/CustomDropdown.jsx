@@ -93,6 +93,11 @@ const CustomDropdown = ({ onSelect, theme, defaultOption, fetchProfiles }) => {
     flex items-center justify-between w-full px-4 py-2 text-sm text-left
     ${theme === "dark" ? "text-gray-300 hover:bg-gray-700" : "text-gray-700 hover:bg-gray-100"}
   `
+  const defaultProfileOption = {
+    _id: 'default',
+    label: 'Default',
+    value: null
+  };
 
   return (
     <div className="relative inline-block text-left w-40 z-50" ref={dropdownRef}>

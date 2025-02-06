@@ -29,24 +29,31 @@ const ProfileModal = ({ isOpen, onClose, profile, theme, onProfileUpdate }) => {
 
 
   useEffect(() => {
+    // Reset all values when modal opens/closes
+    if (!isOpen) {
+      setProfileName("");
+      setOptions([]);
+      setProfileFields({});
+      return;
+    }
+
+    // If profile exists (edit mode), set the values
     if (profile) {
       setProfileName(profile.label);
-      
       const values = profile.value.split(',').map((item) => item.trim());
-      
       const fieldsArray = values.map((value) => ({
         label: value,
         value: value
       }));
-  
       setOptions(fieldsArray);
     } else {
+      // If no profile (add mode), reset all values
       setProfileName("");
-      setOptions([]); 
+      setOptions([]);
+      setProfileFields({});
     }
-  }, [profile]);
+  }, [isOpen, profile]);
   
-
   const handleSave = async () => {
     try {
       // const valueString = Object.values(profileFields)
