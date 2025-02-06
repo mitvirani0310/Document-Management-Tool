@@ -2,25 +2,30 @@ import { useState, useCallback, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { useTheme } from "../../contexts/ThemeContext"
 import axios from "axios"
-import { FiSun, FiMoon, FiUploadCloud } from "react-icons/fi"
+import { Sun, Moon, Upload } from "lucide-react"
 import DeleteConfirmationModal from "../DeleteConfirmationModal/DeleteConfirmationModal"
 import CustomDropdown from "../CustomDropdown/CustomDropdown"
-const API_URL = import.meta.env.VITE_API_URL
+// const API_URL = import.meta.env.VITE_API_URL
 import OutamationAI from "../../../public/outamation-llm.png"
 import { ToastContainer, toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
-import {options} from "../../utils/formatters"
-import { useDocumentType } from "../../contexts/DocumentTypeContext"
+import ProfileModal from "../ProfileModal/ProfileModal"
+
+const API_URL = import.meta.env.VITE_API_URL
 
 function DocumentManagement() {
   const [documents, setDocuments] = useState([])
   const [isDragging, setIsDragging] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedDocument, setSelectedDocument] = useState(null)
-  const [selectedDocId, setSelectedDocId] = useState(null)
   const [isUploading, setIsUploading] = useState(false)
   const [isFetching, setIsFetching] = useState(false)
-  const { selectedDocumentType, setSelectedDocumentType } = useDocumentType()
+  const [selectedDocumentType, setSelectedDocumentType] = useState({})
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false)
+  const [selectedProfile, setSelectedProfile] = useState(null)
+  // const [theme, setTheme] = useState("light")
+  const [profiles, setProfiles] = useState([]);
+
   const navigate = useNavigate()
   const { theme, toggleTheme } = useTheme()
 
@@ -31,6 +36,7 @@ function DocumentManagement() {
       setDocuments(response.data)
     } catch (error) {
       console.error("Error fetching documents:", error)
+      toast.error("Failed to fetch documents")
     } finally {
       setIsFetching(false)
     }
@@ -155,33 +161,68 @@ function DocumentManagement() {
     handleFileUpload(files)
   }
 
-  const handleDocumentTypeChange = ( label, value ) => {
-    // Now you have access to both label and value
-    console.log('Selected label:', label);
-    console.log('Selected value:', value);
-    setSelectedDocumentType({ label, value });
-    // ...rest of your handling logic
+  useEffect(() => {
+    fetchProfiles();
+  }, []);
+
+  const fetchProfiles = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/api/profiles`);
+      setProfiles(response.data);
+      if (response.data.length > 0) {
+        setSelectedDocumentType(response.data[0]);
+      }
+    } catch (error) {
+      console.error('Error fetching profiles:', error);
+    }
   };
 
+  const handleDocumentTypeChange = (profile) => {
+    if (profile.action === "edit") {
+      setSelectedProfile(profile);
+      setIsProfileModalOpen(true);
+    } else if (profile.action === "add") {
+      setSelectedProfile(null);
+      setIsProfileModalOpen(true);
+    } else {
+      setSelectedDocumentType(profile);
+    }
+  };
+  
+  const handleCloseProfileModal = () => {
+    setIsProfileModalOpen(false)
+    setSelectedProfile(null)
+  }
+
+  
   return (
     <div className={`h-screen flex flex-col ${theme === "dark" ? "bg-gray-900 text-white" : "bg-white text-gray-900"}`}>
       <div className="container mx-auto p-4 flex flex-col flex-grow overflow-hidden">
         {/* Header */}
         <div className="flex justify-between items-center mb-4 relative">
+          {/* <h1 className="text-xl font-bold">Document Management</h1> */}
           <img src={OutamationAI || "/placeholder.svg"} alt="Outamation AI" className="w-48 h-12" />
           <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 bg-clip-text text-transparent absolute left-1/2 transform -translate-x-1/2">
             Document AI
           </h1>
-          <button
-            onClick={toggleTheme}
-            className={`p-2 rounded-full flex items-center gap-2 ${
-              theme === "dark"
-                ? "bg-gray-700 text-gray-200 hover:bg-gray-600"
-                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-            }`}
-          >
-            {theme === "dark" ? <FiSun className="w-5 h-5" /> : <FiMoon className="w-5 h-5" />}
-          </button>
+          <div className="flex items-center space-x-4">
+            <CustomDropdown
+               options={profiles}
+              onSelect={handleDocumentTypeChange}
+              theme={theme}
+              defaultOption={selectedDocumentType?.value}
+            />
+            <button
+              onClick={toggleTheme}
+              className={`p-2 rounded-full flex items-center gap-2 ${
+                theme === "dark"
+                  ? "bg-gray-700 text-gray-200 hover:bg-gray-600"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              }`}
+            >
+              {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
+          </div>
         </div>
 
         {/* Drag and Drop */}
@@ -194,7 +235,7 @@ function DocumentManagement() {
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
           >
-            <FiUploadCloud className="mx-auto h-8 w-8 text-gray-400 mb-2" />
+            <Upload className="mx-auto h-8 w-8 text-gray-400 mb-2" />
             <p className={`text-sm mb-2 ${theme === "dark" ? "text-gray-200" : "text-gray-600"}`}>
               Drag and drop your files here, or
             </p>
@@ -249,22 +290,8 @@ function DocumentManagement() {
                       Size
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  <div className="flex flex-wrap justify-between items-center">
-                  <span>  Actions</span>
-                      <CustomDropdown
-                        options={options}
-                        defaultOption={selectedDocumentType.value}
-                        onSelect={({ label, value }) => {
-                          handleDocumentTypeChange(label, value );
-                          // Your handler logic
-                        }}
-                        theme={theme}
-                      />
-                  </div>
+                      Actions
                     </th>
-                    {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                     
-                    </th> */}
                   </tr>
                 </thead>
                 <tbody
@@ -342,6 +369,12 @@ function DocumentManagement() {
         onClose={handleCloseModal}
         onConfirm={handleDeleteDocument}
         documentName={selectedDocument?.name}
+        theme={theme}
+      />
+      <ProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={handleCloseProfileModal}
+        profile={selectedProfile}
         theme={theme}
       />
       <ToastContainer position="bottom-center" theme={theme} />

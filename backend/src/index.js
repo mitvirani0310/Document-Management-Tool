@@ -3,6 +3,8 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const config = require("./config/config");
 const documentRoutes = require("./routes/documentRoutes");
+const profileRoutes = require("./routes/profiles");
+
 const path = require("path");
 const fs = require("fs");
 const app = express();
@@ -46,6 +48,8 @@ app.use("/uploads", express.static(uploadsDir, {
 }));
 
 app.use("/api/documents", documentRoutes);
+app.use("/api/profiles", profileRoutes);
+
 
 const PORT = config.port || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
