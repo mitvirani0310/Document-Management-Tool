@@ -1,6 +1,6 @@
 import { useTheme } from "../../contexts/ThemeContext";
 import React from "react";
-const KeyValueList = ({ data, handleKeyValueClick, isLoading,isRedact,handleRedactData,handleExtractData,isSearchable }) => {
+const KeyValueList = ({ data,isRedacted, handleKeyValueClick, isLoading,isRedact,handleRedactData,handleExtractData,isSearchable }) => {
   const { theme } = useTheme();
 
   if (isLoading) {
@@ -78,8 +78,10 @@ const KeyValueList = ({ data, handleKeyValueClick, isLoading,isRedact,handleReda
       </h2>
      { isRedact &&
        <button
-       onClick={handleRedactData}
-       className="px-6 py-1.5 rounded-md text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white"
+       onClick={handleRedactData}  disabled={isRedacted}
+       className={`px-6 py-1.5 rounded-md text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white ${
+        isRedacted ? 'opacity-50 cursor-not-allowed' : ''
+      }`}
      >
        Redact Data
      </button>

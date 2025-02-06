@@ -224,6 +224,7 @@ const DocumentRedact = () => {
             handleKeyValueClick={handleKeyValueClick}
             isLoading={isExtractingData}
             isRedact={true}
+            isRedacted={isRedacted}
             handleRedactData={handleRedactData}
           />
         </Split>

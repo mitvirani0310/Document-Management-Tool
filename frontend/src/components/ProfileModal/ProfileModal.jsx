@@ -53,7 +53,7 @@ const ProfileModal = ({ isOpen, onClose, profile, theme, onProfileUpdate }) => {
       setProfileFields({});
     }
   }, [isOpen, profile]);
-  
+
   const handleSave = async () => {
     try {
       // const valueString = Object.values(profileFields)
@@ -149,7 +149,7 @@ const ProfileModal = ({ isOpen, onClose, profile, theme, onProfileUpdate }) => {
           <div>
             <label
               htmlFor="profileName"
-              className={`block text-sm font-medium ${
+              className={`block text-sm mb-2 font-medium ${
                 theme === "dark" ? "text-gray-300" : "text-gray-700"
               }`}
             >
@@ -158,14 +158,14 @@ const ProfileModal = ({ isOpen, onClose, profile, theme, onProfileUpdate }) => {
             <input
               type="text"
               id="profileName"
-              placeholder="John Doe"
+              placeholder="Enter profile name"
               value={profileName}
               onChange={(e) => setProfileName(e.target.value)}
               className={`mt-1 block w-full rounded-md ${
                 theme === "dark"
                   ? "bg-gray-700 text-white"
                   : "bg-white text-gray-900"
-              } border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50`}
+              } border-gray-300 shadow-sm p-2 mt-2 focus:border-blue-300 ring focus:ring-blue-100 focus:ring-opacity-50`}
             />
           </div>
           <label
@@ -174,7 +174,7 @@ const ProfileModal = ({ isOpen, onClose, profile, theme, onProfileUpdate }) => {
                 theme === "dark" ? "text-gray-300" : "text-gray-700"
               }`}
             >
-              Add Keys
+              Add Keys for Data Extraction 
             </label>
 
           <CreatableSelect isMulti options={options} onChange={(e) => handleMultiInput(e)} value={options}/>
