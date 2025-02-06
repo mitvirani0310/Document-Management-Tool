@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react"
-import { ChevronDown, Edit, Plus } from "lucide-react"
+import { ChevronDown, Edit, Plus, Trash } from "lucide-react"
 import axios from "axios"
 import { useDocumentType } from "../../contexts/DocumentTypeContext"
 
@@ -29,6 +29,17 @@ const CustomDropdown = ({ onSelect, theme, defaultOption, fetchProfiles }) => {
     };
 
     fetchProfilesInternal();
+
+    const handleClickOutside = (event) => {
+        if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+          setIsOpen(false);
+        }
+      };
+  
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
   }, [selectedDocumentType, fetchProfiles]);
 
   const handleSelect = (option) => {
@@ -50,6 +61,21 @@ const CustomDropdown = ({ onSelect, theme, defaultOption, fetchProfiles }) => {
     setIsOpen(false);
   };
 
+  const handleDeleteProfile = (e, option) => {
+    e.stopPropagation();
+    axios
+      .delete(`${API_URL}/api/profiles/${option._id}`)
+      .then(() => {
+        fetchProfiles();
+        if (selectedOption?._id === option._id) {
+          setSelectedOption(null);
+          setSelectedDocumentType(null);
+        }
+      })
+      .catch((error) => {
+        console.error("Error deleting profile:", error);
+      });
+  };
 
   const buttonClasses = `
     flex items-center justify-between w-full px-4 py-2 text-sm font-medium
@@ -91,20 +117,21 @@ const CustomDropdown = ({ onSelect, theme, defaultOption, fetchProfiles }) => {
               <Plus className="w-4 h-4" />
             </button>
             {options.map((option) => (
-              <button 
-                key={option._id} 
-                onClick={() => handleSelect(option)} 
-                className={optionClasses} 
-                role="menuitem"
-              >
+              <button key={option._id} onClick={() => handleSelect(option)} className={optionClasses} role="menuitem">
                 <span>{option.label}</span>
-                <Edit 
-                  className="w-4 h-4 text-gray-400 hover:text-gray-600" 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleSelect({ ...option, action: "edit" });
-                  }} 
-                />
+                <div className="flex">
+                  <Edit
+                    className="w-4 h-4 text-gray-400 hover:text-gray-600 mr-2"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleSelect({ ...option, action: "edit" });
+                    }}
+                  />
+                  <Trash
+                    className="w-4 h-4 text-red-400 hover:text-red-600"
+                    onClick={(e) => handleDeleteProfile(e, option)}
+                  />
+                </div>
               </button>
             ))}
           </div>
