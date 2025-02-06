@@ -206,13 +206,6 @@ function DocumentManagement() {
             Document AI
           </h1>
           <div className="flex items-center space-x-4">
-            <CustomDropdown
-               options={profiles}
-              onSelect={handleDocumentTypeChange}
-              theme={theme}
-              defaultOption={selectedDocumentType?.value}
-              fetchProfiles={fetchProfiles} 
-            />
             <button
               onClick={toggleTheme}
               className={`p-2 rounded-full flex items-center gap-2 ${
@@ -291,7 +284,16 @@ function DocumentManagement() {
                       Size
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Actions
+                      <div className="flex flex-wrap justify-between items-center">
+                        <span> Actions</span>
+                        <CustomDropdown
+                          options={profiles}
+                          onSelect={handleDocumentTypeChange}
+                          theme={theme}
+                          defaultOption={selectedDocumentType?.value}
+                          fetchProfiles={fetchProfiles}
+                        />
+                      </div>
                     </th>
                   </tr>
                 </thead>

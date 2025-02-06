@@ -20,8 +20,7 @@ const DocumentViewer = () => {
   const [documentName, setDocumentName] = useState();
   const [isLoading, setIsLoading] = useState(true);
   const [isExtractingData, setIsExtractingData] = useState(false);
-    const { selectedDocumentType, setSelectedDocumentType } = useDocumentType();
-  
+  const { selectedDocumentType, setSelectedDocumentType } = useDocumentType();
   const [error, setError] = useState(null);
   const [keyValueData, setKeyValueData] = useState({});
   const { theme, toggleTheme } = useTheme();

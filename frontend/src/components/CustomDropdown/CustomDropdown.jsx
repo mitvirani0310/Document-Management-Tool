@@ -101,7 +101,7 @@ const CustomDropdown = ({ onSelect, theme, defaultOption, fetchProfiles }) => {
         onClick={() => setIsOpen(!isOpen)} 
         className={buttonClasses}
       >
-        {selectedOption ? selectedOption.label : "Profile"}
+        {selectedOption ? selectedOption.label : " Select Profile"}
         <ChevronDown className="w-5 h-5 ml-2 -mr-1" aria-hidden="true" />
       </button>
 
@@ -115,6 +115,13 @@ const CustomDropdown = ({ onSelect, theme, defaultOption, fetchProfiles }) => {
             >
               <span>Add Profile</span>
               <Plus className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => handleSelect(defaultProfileOption)}
+              className={optionClasses}
+              role="menuitem"
+            >
+              <span>Default</span>
             </button>
             {options.map((option) => (
               <button key={option._id} onClick={() => handleSelect(option)} className={optionClasses} role="menuitem">

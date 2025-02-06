@@ -11,6 +11,7 @@ import { FiArrowLeft, FiMoon, FiSun } from "react-icons/fi";
 import { useNavigate } from 'react-router-dom';
 const API_URL = import.meta.env.VITE_API_URL;
 import OutamationAI from "../../../public/outamation-llm.png";
+import { useDocumentType } from "../../contexts/DocumentTypeContext";
 
 const DocumentRedact = () => {
   const { documentId } = useParams();
@@ -26,6 +27,8 @@ const DocumentRedact = () => {
   const hasExtractedData = useRef(false); // Ref to prevent multiple API calls
   const [isRedacting, setIsRedacting] = useState(false);
   const [isRedacted,setIsRedacted] = useState(false);
+  const { selectedDocumentType, setSelectedDocumentType } = useDocumentType();
+  
 
   // const [keyValueData] = useState({
     //   "Loan Number": "Rich Dad",
@@ -69,7 +72,8 @@ const DocumentRedact = () => {
 
     const extractPdfData = async (documentId) => {
       if (hasExtractedData.current) return; // Prevent duplicate API calls
-  
+      console.log("selected-type : ", selectedDocumentType);
+      const checkProfile = selectedDocumentType.value === "null" ? "default" : selectedDocumentType.value;
       try {
         hasExtractedData.current = true; // Mark API call as initiated
         setIsExtractingData(true);
@@ -81,7 +85,7 @@ const DocumentRedact = () => {
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ documentId }),
+            body: JSON.stringify({ data: checkProfile }),
           }
         );
   

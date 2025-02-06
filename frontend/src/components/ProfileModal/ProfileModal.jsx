@@ -10,20 +10,25 @@ const ProfileModal = ({ isOpen, onClose, profile, theme, onProfileUpdate }) => {
   const [profileFields, setProfileFields] = useState({});
 
   useEffect(() => {
-    if (profile) {
-      setProfileName(profile.label);
-      // Convert comma-separated string to object
-      const values = profile.value.split(',');
-      const fieldsObj = values.reduce((acc, value, index) => {
-        acc[index] = value;
-        return acc;
-      }, {});
-      setProfileFields(fieldsObj);
-    } else {
-      setProfileName("");
-      setProfileFields({ 0: "" });
+    if (isOpen) {
+      if (profile) {
+        // Editing existing profile
+        setProfileName(profile.label || "");
+        const values = profile.value.split(',');
+        const fields = {};
+        values.forEach((value, index) => {
+          fields[`field${index + 1}`] = value;
+        });
+        setProfileFields(fields);
+      } else {
+        // Adding new profile - reset all fields
+        setProfileName("");
+        setProfileFields({});
+      }
     }
-  }, [profile]);
+  }, [isOpen, profile]);
+
+
   const handleSave = async () => {
     try {
       const valueString = Object.values(profileFields)
@@ -113,6 +118,16 @@ const ProfileModal = ({ isOpen, onClose, profile, theme, onProfileUpdate }) => {
               } border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50`}
             />
           </div>
+          <div>
+          <label
+              htmlFor="profileName"
+              className={`block text-sm font-medium ${
+                theme === "dark" ? "text-gray-300" : "text-gray-700"
+              }`}
+            >
+              Add the key for extracting...
+            </label>
+          </div>
 
           {Object.entries(profileFields).map(([key, value], index) => (
             <div key={index} className="flex space-x-2">
@@ -134,7 +149,7 @@ const ProfileModal = ({ isOpen, onClose, profile, theme, onProfileUpdate }) => {
             onClick={handleAddField}
             className="w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
-            Add Field
+            Add key
           </button>
         </div>
 
