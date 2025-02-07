@@ -148,39 +148,41 @@ const ProfileModal = ({ isOpen, onClose, profile, theme, onProfileUpdate }) => {
             <div className="space-y-3">
               {extractionFields.map((field, index) => (
                 <div key={index} className="flex gap-3 items-start">
-                  <div className="flex-1">
-                    <input
-                      type="text"
-                      value={field.key}
-                      onChange={(e) => handleFieldChange(index, "key", e.target.value)}
-                      placeholder="Key"
-                      className={`w-full rounded-md ${
-                        theme === "dark"
-                          ? "bg-gray-700 text-white"
-                          : "bg-white text-gray-900"
-                      } border-gray-300 shadow-sm p-2 text-sm`}
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <input
-                      type="text"
-                      value={field.description}
-                      onChange={(e) => handleFieldChange(index, "description", e.target.value)}
-                      placeholder="Description"
-                      className={`w-full rounded-md ${
-                        theme === "dark"
-                          ? "bg-gray-700 text-white"
-                          : "bg-white text-gray-900"
-                      } border-gray-300 shadow-sm p-2 text-sm`}
-                    />
-                  </div>
-                  <button
-                    onClick={() => handleRemoveField(index)}
-                    className="p-2 text-red-500 hover:text-red-600"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                <div className="w-[35%]">
+                  <input
+                    type="text"
+                    value={field.key}
+                    onChange={(e) => handleFieldChange(index, "key", e.target.value)}
+                    placeholder="Key"
+                    className={`w-full rounded-lg ${
+                      theme === "dark"
+                        ? "bg-gray-700 text-white border-gray-600 focus:border-blue-500"
+                        : "bg-white text-gray-900 border-gray-200 focus:border-blue-500"
+                    } border-2 shadow-sm p-2.5 text-sm transition-all duration-200 ease-in-out
+                    focus:outline-none focus:ring-2 focus:ring-blue-500/20 hover:border-gray-300`}
+                  />
                 </div>
+                <div className="w-[65%]">
+                  <input
+                    type="text"
+                    value={field.description}
+                    onChange={(e) => handleFieldChange(index, "description", e.target.value)}
+                    placeholder="Description (optional)"
+                    className={`w-full rounded-lg ${
+                      theme === "dark"
+                        ? "bg-gray-700 text-white border-gray-600 focus:border-blue-500"
+                        : "bg-white text-gray-900 border-gray-200 focus:border-blue-500"
+                    } border-2 shadow-sm p-2.5 text-sm transition-all duration-200 ease-in-out
+                    focus:outline-none focus:ring-2 focus:ring-blue-500/20 hover:border-gray-300`}
+                  />
+                </div>
+                <button
+                  onClick={() => handleRemoveField(index)}
+                  className="p-2.5 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
               ))}
             </div>
           </div>
