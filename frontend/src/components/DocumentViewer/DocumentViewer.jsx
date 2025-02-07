@@ -67,11 +67,23 @@ const DocumentViewer = () => {
       }
     };
 
+    const transformProfile = (profile) => {
+      if (!profile || !Array.isArray(profile)) return [];
+      return profile.map(({ key, description }) => ({
+        key,
+        description
+      }));
+    };
+  
     const extractPdfData = async (documentId) => {
       if (hasExtractedData.current) return; 
       // Prevent duplicate API calls
-  console.log("selected-type : ", selectedDocumentType);
-  const checkProfile = selectedDocumentType.value === "null" ? "default" : selectedDocumentType.value;
+      console.log("selected-type : ", selectedDocumentType);
+      // const checkProfile = selectedDocumentType.value === "null" ? "default" : selectedDocumentType.value;
+      const checkProfile = selectedDocumentType.value === "null" 
+    ? "default" 
+    : transformProfile(selectedDocumentType.value);
+      console.log('checkProfile: ', checkProfile);
       try {
         hasExtractedData.current = true; // Mark API call as initiated
         setIsExtractingData(true);

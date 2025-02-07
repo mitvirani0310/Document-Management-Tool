@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { X, Plus, Trash2 } from "lucide-react";
 import axios from "axios";
 import { useDocumentType } from "../../contexts/DocumentTypeContext";
+import { toast } from "react-toastify";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -73,8 +74,28 @@ const ProfileModal = ({ isOpen, onClose, profile, theme, onProfileUpdate }) => {
 
       if (profile?._id) {
         await axios.put(`${API_URL}/api/profiles/${profile._id}`, profileData);
+        toast.success("Profile updated successfully", {
+            position: "bottom-center",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: theme
+          });
       } else {
         await axios.post(`${API_URL}/api/profiles`, profileData);
+        toast.success("Profile created successfully", {
+            position: "bottom-center", 
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: theme
+          });
       }
 
       onClose();
