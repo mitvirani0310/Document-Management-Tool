@@ -90,71 +90,74 @@ const ProfileModal = ({ isOpen, onClose, profile, theme, onProfileUpdate }) => {
   if (!isOpen) return null;
 
   return createPortal(
-    <div className={`fixed inset-0 z-[100] flex items-center justify-center ${
-      theme === "dark" ? "bg-black/70" : "bg-white/10"
-    } backdrop-blur-sm`}>
-      <div className={`relative p-6 ${
-        theme === "dark" ? "bg-gray-800" : "bg-white"
-      } rounded-xl shadow-[0_0_15px_rgba(0,0,0,0.2)] dark:shadow-[0_0_15px_rgba(255,255,255,0.1)] 
-      max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-gray-200 dark:border-gray-700`}>
-        <div className="flex items-center justify-between mb-5">
-          <h2 className={`text-xl font-semibold ${
-            theme === "dark" ? "text-gray-200" : "text-gray-800"
-          }`}>
-            {profile ? "Edit Profile" : "Add Profile"}
-          </h2>
-          
-          <button
-            className={`p-2 rounded-lg transition-colors ${
-              theme === "dark" 
-                ? "text-gray-400 hover:text-gray-200 hover:bg-gray-700" 
-                : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
-            }`}
-            onClick={onClose}
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+    <div
+      className={`fixed inset-0 z-[100] flex items-center justify-center ${
+        theme === "dark" ? "bg-black/70" : "bg-white/10"
+      } backdrop-blur-sm`}
+    >
+      <div
+        className={`relative p-6 ${
+          theme === "dark" ? "bg-gray-800" : "bg-white"
+        } rounded-xl shadow-[0_0_15px_rgba(0,0,0,0.2)] dark:shadow-[0_0_15px_rgba(255,255,255,0.1)] 
+    max-w-2xl w-full max-h-[80vh] flex flex-col border border-gray-200 dark:border-gray-700`}
+      >
+        <div className="flex-shrink-0">
+          <div className="flex items-center justify-between mb-5">
+            <h2 className={`text-xl font-semibold ${theme === "dark" ? "text-gray-200" : "text-gray-800"}`}>
+              {profile ? "Edit Profile" : "Add Profile"}
+            </h2>
 
-        <div className="space-y-4">
-          <div>
-            <label className={`block text-sm mb-4 font-medium ${
-              theme === "dark" ? "text-gray-300" : "text-gray-700"
-            }`}>
-              Profile Name
-            </label>
-            <input
-              type="text"
-              value={profileName}
-              onChange={(e) => setProfileName(e.target.value)}
-              className={`w-full rounded-md ${
+            <button
+              className={`p-2 rounded-lg transition-colors ${
                 theme === "dark"
-                  ? "bg-gray-700 text-white"
-                  : "bg-white text-gray-900"
-              } border-gray-300 shadow-sm p-2 focus:border-black ring focus:ring-blue-100 focus:ring-opacity-50`}
-              placeholder="Enter profile name"
-            />
+                  ? "text-gray-400 hover:text-gray-200 hover:bg-gray-700"
+                  : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+              }`}
+              onClick={onClose}
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
 
-          <div>
-            <div className="flex justify-between items-center mb-2">
-              <label className={`text-sm font-medium ${
-                theme === "dark" ? "text-gray-300" : "text-gray-700"
-              }`}>
-                Data Extraction Fields
-              </label>
-              <button
-                onClick={handleAddField}
-                className="flex items-center gap-1 px-3 py-1 text-sm rounded-md bg-blue-500 text-white hover:bg-blue-600"
+          <div className="space-y-4">
+            <div>
+              <label
+                className={`block text-sm mb-4 font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
               >
-                <Plus className="w-4 h-4" />
-                Add Field
-              </button>
+                Profile Name
+              </label>
+              <input
+                type="text"
+                value={profileName}
+                onChange={(e) => setProfileName(e.target.value)}
+                className={`w-full rounded-md ${
+                  theme === "dark" ? "bg-gray-700 text-white" : "bg-white text-gray-900"
+                } border-gray-300 shadow-sm p-2 focus:border-black ring focus:ring-blue-100 focus:ring-opacity-50`}
+                placeholder="Enter profile name"
+              />
             </div>
 
-            <div className="space-y-3">
-              {extractionFields.map((field, index) => (
-                <div key={index} className="flex gap-3 items-start">
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <label className={`text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
+                  Data Extraction Fields
+                </label>
+                <button
+                  onClick={handleAddField}
+                  className="flex items-center gap-1 px-3 py-1 text-sm rounded-md bg-blue-500 text-white hover:bg-blue-600"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Field
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex-grow overflow-y-auto mt-4 pr-2">
+          <div className="space-y-3">
+            {extractionFields.map((field, index) => (
+              <div key={index} className="flex gap-3 items-start">
                 <div className="w-[35%]">
                   <input
                     type="text"
@@ -166,7 +169,7 @@ const ProfileModal = ({ isOpen, onClose, profile, theme, onProfileUpdate }) => {
                         ? "bg-gray-700 text-white border-gray-600 focus:border-blue-500"
                         : "bg-white text-gray-900 border-gray-200 focus:border-blue-500"
                     } border-2 shadow-sm p-2.5 text-sm transition-all duration-200 ease-in-out
-                    focus:outline-none focus:ring-2 focus:ring-blue-500/20 hover:border-gray-300`}
+                  focus:outline-none focus:ring-2 focus:ring-blue-500/20 hover:border-gray-300`}
                   />
                 </div>
                 <div className="w-[65%]">
@@ -180,7 +183,7 @@ const ProfileModal = ({ isOpen, onClose, profile, theme, onProfileUpdate }) => {
                         ? "bg-gray-700 text-white border-gray-600 focus:border-blue-500"
                         : "bg-white text-gray-900 border-gray-200 focus:border-blue-500"
                     } border-2 shadow-sm p-2.5 text-sm transition-all duration-200 ease-in-out
-                    focus:outline-none focus:ring-2 focus:ring-blue-500/20 hover:border-gray-300`}
+                  focus:outline-none focus:ring-2 focus:ring-blue-500/20 hover:border-gray-300`}
                   />
                 </div>
                 <button
@@ -190,12 +193,11 @@ const ProfileModal = ({ isOpen, onClose, profile, theme, onProfileUpdate }) => {
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
-              ))}
-            </div>
+            ))}
           </div>
         </div>
 
-        <div className="flex justify-end space-x-3 mt-6">
+        <div className="flex-shrink-0 flex justify-end space-x-3 mt-6">
           <button
             onClick={onClose}
             className={`px-4 py-2 rounded-md ${
@@ -206,17 +208,14 @@ const ProfileModal = ({ isOpen, onClose, profile, theme, onProfileUpdate }) => {
           >
             Cancel
           </button>
-          <button
-            onClick={handleSave}
-            className="px-4 py-2 rounded-md bg-blue-500 hover:bg-blue-600 text-white"
-          >
+          <button onClick={handleSave} className="px-4 py-2 rounded-md bg-blue-500 hover:bg-blue-600 text-white">
             Save
           </button>
         </div>
       </div>
     </div>,
-    document.body
-  );
+    document.body,
+  )
 };
 
 export default ProfileModal;
