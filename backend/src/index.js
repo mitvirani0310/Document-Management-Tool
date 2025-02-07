@@ -3,7 +3,7 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const config = require("./config/config");
 const documentRoutes = require("./routes/documentRoutes");
-const profileRoutes = require("./routes/profiles");
+const profileRoutes = require('./routes/profileRoutes');
 
 const path = require("path");
 const fs = require("fs");
