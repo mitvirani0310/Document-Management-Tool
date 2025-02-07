@@ -95,23 +95,30 @@ const ProfileModal = ({ isOpen, onClose, profile, theme, onProfileUpdate }) => {
     } backdrop-blur-sm`}>
       <div className={`relative p-6 ${
         theme === "dark" ? "bg-gray-800" : "bg-white"
-      } rounded-lg shadow-lg max-w-2xl w-full max-h-[80vh] overflow-y-auto`}>
-        <button
-          className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-          onClick={onClose}
-        >
-          <X className="w-5 h-5" />
-        </button>
-
-        <h2 className={`text-lg font-bold mb-4 ${
-          theme === "dark" ? "text-gray-300" : "text-gray-900"
-        }`}>
-          {profile ? "Edit Profile" : "Add Profile"}
-        </h2>
+      } rounded-xl shadow-[0_0_15px_rgba(0,0,0,0.2)] dark:shadow-[0_0_15px_rgba(255,255,255,0.1)] 
+      max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-gray-200 dark:border-gray-700`}>
+        <div className="flex items-center justify-between mb-5">
+          <h2 className={`text-xl font-semibold ${
+            theme === "dark" ? "text-gray-200" : "text-gray-800"
+          }`}>
+            {profile ? "Edit Profile" : "Add Profile"}
+          </h2>
+          
+          <button
+            className={`p-2 rounded-lg transition-colors ${
+              theme === "dark" 
+                ? "text-gray-400 hover:text-gray-200 hover:bg-gray-700" 
+                : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+            }`}
+            onClick={onClose}
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
         <div className="space-y-4">
           <div>
-            <label className={`block text-sm mb-2 font-medium ${
+            <label className={`block text-sm mb-4 font-medium ${
               theme === "dark" ? "text-gray-300" : "text-gray-700"
             }`}>
               Profile Name
