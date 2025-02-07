@@ -3,42 +3,31 @@ import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import axios from "axios";
 import CreatableSelect from 'react-select/creatable';
-
-const colorOptions = [
-  {
-    label:"Name",
-    value:"name"
-  },
-  {
-    label:"Email",
-    value:"email"
-  },
-  {
-    label:"Address",
-    value:"address"
-  },
-]
-
+import { useDocumentType } from "../../contexts/DocumentTypeContext";
+ 
+ 
 const API_URL = import.meta.env.VITE_API_URL;
-
+ 
 const ProfileModal = ({ isOpen, onClose, profile, theme, onProfileUpdate }) => {
   const [profileName, setProfileName] = useState("");
-  const [profileFields, setProfileFields] = useState({});
+  // const [profileFields, setProfileFields] = useState({});
   const [options,setOptions] = useState();
   const [editOptions,setEditOptions] = useState();
-
-
+  const { selectedDocumentType, setSelectedDocumentType } = useDocumentType();
+ 
+ 
   useEffect(() => {
     // Reset all values when modal opens/closes
     if (!isOpen) {
       setProfileName("");
       setOptions([]);
-      setProfileFields({});
+      // setProfileFields({});
       return;
     }
-
+ 
     // If profile exists (edit mode), set the values
     if (profile) {
+      console.log('profile in: ', profile);
       setProfileName(profile.label);
       const values = profile.value.split(',').map((item) => item.trim());
       const fieldsArray = values.map((value) => ({
@@ -50,10 +39,10 @@ const ProfileModal = ({ isOpen, onClose, profile, theme, onProfileUpdate }) => {
       // If no profile (add mode), reset all values
       setProfileName("");
       setOptions([]);
-      setProfileFields({});
+      // setProfileFields({});
     }
   }, [isOpen, profile]);
-
+ 
   const handleSave = async () => {
     try {
       // const valueString = Object.values(profileFields)
@@ -61,20 +50,23 @@ const ProfileModal = ({ isOpen, onClose, profile, theme, onProfileUpdate }) => {
       //   .join(',');
       if(!editOptions){
         console.error("Please input with fields", error);
-
+ 
       }
-  
+ 
+ 
+ 
       const profileData = {
         label: profileName,
         value: editOptions
       };
-  
+      setSelectedDocumentType(profileData);
+ 
       if (profile?._id) {
         await axios.put(`${API_URL}/api/profiles/${profile._id}`, profileData);
       } else {
         await axios.post(`${API_URL}/api/profiles`, profileData);
       }
-      
+     
       onClose();
       // Trigger a refresh in the parent component
       if (typeof onProfileUpdate === 'function') {
@@ -84,42 +76,42 @@ const ProfileModal = ({ isOpen, onClose, profile, theme, onProfileUpdate }) => {
       console.error("Error saving profile:", error);
     }
   };
-
-  const handleAddField = () => {
-    setProfileFields({ ...profileFields, "": "" });
-  };
-
-  const handleFieldChange = (oldKey, newValue) => {
-    const updatedFields = { ...profileFields };
-    delete updatedFields[oldKey];
-    if (newValue.trim() !== "") {
-      updatedFields[Object.keys(updatedFields).length] = newValue;
-    }
-    setProfileFields(updatedFields);
-  };
-
+ 
+  // const handleAddField = () => {
+  //   setProfileFields({ ...profileFields, "": "" });
+  // };
+ 
+  // const handleFieldChange = (oldKey, newValue) => {
+  //   const updatedFields = { ...profileFields };
+  //   delete updatedFields[oldKey];
+  //   if (newValue.trim() !== "") {
+  //     updatedFields[Object.keys(updatedFields).length] = newValue;
+  //   }
+  //   setProfileFields(updatedFields);
+  // };
+ 
   const handleMultiInput = (e) => {
     console.log('e: ', e);
     // console.log("options: ", options);
-  
+ 
     // // Create a union of both arrays using a Map (to ensure uniqueness based on `label`)
     // const mergedArray = [...options, ...e].reduce((acc, item) => {
     //   acc.set(item.label, item); // Using label as the unique key
     //   return acc;
     // }, new Map());
-  
+ 
     // // Convert the map values back to an array
     // const uniqueArray = Array.from(mergedArray.values());
-  
+ 
     // Extract labels and join them into a string
     const result = e.map(item => item.label).join(', ');
   setOptions(e)
     setEditOptions(result);
   };
-  
-
+ 
+ 
   if (!isOpen) return null;
-
+ 
   return createPortal(
     <div
       className={`fixed inset-0 z-[100] flex items-center justify-center ${
@@ -144,7 +136,7 @@ const ProfileModal = ({ isOpen, onClose, profile, theme, onProfileUpdate }) => {
         >
           {profile ? "Edit Profile" : "Add Profile"}
         </h2>
-
+ 
         <div className="space-y-4">
           <div>
             <label
@@ -174,11 +166,11 @@ const ProfileModal = ({ isOpen, onClose, profile, theme, onProfileUpdate }) => {
                 theme === "dark" ? "text-gray-300" : "text-gray-700"
               }`}
             >
-              Add Keys for Data Extraction 
+              Add Keys for Data Extraction
             </label>
-
+ 
           <CreatableSelect isMulti options={options} onChange={(e) => handleMultiInput(e)} value={options}/>
-
+ 
           {/* {Object.entries(profileFields).map(([key, value], index) => (
             <div key={index} className="flex space-x-2">
               <input
@@ -194,7 +186,7 @@ const ProfileModal = ({ isOpen, onClose, profile, theme, onProfileUpdate }) => {
               />
             </div>
           ))} */}
-
+ 
           {/* <button
             onClick={handleAddField}
             className="w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
@@ -202,7 +194,7 @@ const ProfileModal = ({ isOpen, onClose, profile, theme, onProfileUpdate }) => {
             Add Field
           </button> */}
         </div>
-
+ 
         <div className="flex justify-end space-x-3 mt-6">
           <button
             onClick={onClose}
@@ -226,5 +218,6 @@ const ProfileModal = ({ isOpen, onClose, profile, theme, onProfileUpdate }) => {
     document.body
   );
 };
-
+ 
 export default ProfileModal;
+ 
