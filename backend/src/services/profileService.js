@@ -11,7 +11,7 @@ exports.getProfile = async (id) => {
 exports.createProfile = async (label, value) => {
   const newProfile = new Profile({
     label,
-    value: value.toString() // Ensure value is stored as string
+    value
   });
   return await newProfile.save();
 };
@@ -21,7 +21,7 @@ exports.updateProfile = async (id, label, value) => {
     id,
     { 
       label,
-      value: value.toString() // Ensure value is stored as string
+      value
     },
     { new: true }
   );
