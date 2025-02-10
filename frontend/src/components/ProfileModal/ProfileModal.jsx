@@ -10,7 +10,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 const ProfileModal = ({ isOpen, onClose, profile, theme, onProfileUpdate }) => {
   const [profileName, setProfileName] = useState("");
   const [extractionFields, setExtractionFields] = useState([]);
-  const { setSelectedDocumentType } = useDocumentType();
+  const { selectedDocumentType,setSelectedDocumentType } = useDocumentType();
 
   useEffect(() => {
     if (!isOpen) {
@@ -70,7 +70,9 @@ const ProfileModal = ({ isOpen, onClose, profile, theme, onProfileUpdate }) => {
         value: extractionFields
       };
 
+     if(profile.label === selectedDocumentType.label){
       setSelectedDocumentType(profileData);
+     }
 
       if (profile?._id) {
         await axios.put(`${API_URL}/api/profiles/${profile._id}`, profileData);

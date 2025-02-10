@@ -24,12 +24,18 @@ const CustomDropdown = ({ onSelect, theme, defaultOption, fetchProfiles }) => {
         const response = await axios.get(`${API_URL}/api/profiles`)
         setOptions(response.data)
 
+        console.log('selectedDocumentType: ', selectedDocumentType);
         if (selectedDocumentType?._id) {
+          console.log('selectedDocumentType: ', selectedDocumentType);
           const matchingOption = response.data.find((opt) => opt._id === selectedDocumentType._id)
+          console.log('matchingOption: ', matchingOption);
           if (matchingOption) {
             setSelectedOption(matchingOption)
           }
         }
+        // if(defaultOption){
+        //   setSelectedOption(defaultOption)
+        // }
       } catch (error) {
         console.error("Error fetching profiles:", error)
       }
@@ -138,9 +144,9 @@ const CustomDropdown = ({ onSelect, theme, defaultOption, fetchProfiles }) => {
   }
 
   return (
-    <div className="relative inline-block text-left w-40 z-50" ref={dropdownRef}>
+    <div className="relative inline-block text-left w-44 z-50" ref={dropdownRef}>
       <button type="button" onClick={() => setIsOpen(!isOpen)} className={buttonClasses}>
-        {selectedOption ? selectedOption.label : " Select Profile"}
+        {selectedDocumentType === "default" ? " Select Profile" : selectedDocumentType.label }
         <ChevronDown className="w-5 h-5 ml-2 -mr-1" aria-hidden="true" />
       </button>
 

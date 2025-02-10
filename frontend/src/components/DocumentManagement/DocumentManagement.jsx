@@ -208,9 +208,9 @@ function DocumentManagement() {
     try {
       const response = await axios.get(`${API_URL}/api/profiles`);
       setProfiles(response.data);
-      if (response.data.length > 0) {
-        setSelectedDocumentType(response.data[0]);
-      }
+      // if (response.data.length > 0) {
+      //   setSelectedDocumentType(response.data[0]);
+      // }
     } catch (error) {
       console.error('Error fetching profiles:', error);
     }
