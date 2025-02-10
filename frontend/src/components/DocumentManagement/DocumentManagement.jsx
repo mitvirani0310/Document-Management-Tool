@@ -55,21 +55,57 @@ function DocumentManagement() {
         }
 
         try {
-          setIsUploading(true)
-          await axios.post(`${API_URL}/api/documents/upload`, formData, {
+          setIsUploading(true);
+          const response = await axios.post(`${API_URL}/api/documents/upload`, formData, {
             headers: { "Content-Type": "multipart/form-data" },
-          })
-          await fetchDocuments()
-          toast.success("Files uploaded successfully!", {
-            position: "bottom-center",
-            autoClose: 2000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: theme,
-          })
+          });
+
+          await fetchDocuments();
+
+          // Check the response for messages about existing files
+          if (response.data && Array.isArray(response.data)) {
+            const existingFileMessages = response.data
+              .filter((item) => item.existing === true)
+              .map((item) => item.message);
+
+            if (existingFileMessages.length > 0) {
+              existingFileMessages.forEach((message) => {
+                toast.warn(message, {
+                  position: "bottom-center",
+                  autoClose: 2000,
+                  hideProgressBar: false,
+                  closeOnClick: true,
+                  pauseOnHover: true,
+                  draggable: true,
+                  progress: undefined,
+                  theme: theme,
+                });
+              });
+            } else {
+              toast.success("Files uploaded successfully!", {
+                position: "bottom-center",
+                autoClose: 2000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: theme,
+              });
+            }
+          } else {
+            // If the response format is unexpected, show a generic success message
+            toast.success("Files uploaded successfully!", {
+              position: "bottom-center",
+              autoClose: 2000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: theme,
+            });
+          }
         } catch (error) {
           console.error("Error uploading files:", error)
           toast.error("Error uploading files!", {

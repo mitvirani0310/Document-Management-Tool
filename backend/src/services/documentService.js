@@ -33,3 +33,6 @@ exports.deleteDocument = async (id) => {
   return null
 }
 
+exports.getDocumentByName = async (name) => {
+  return await Document.findOne({ name: name });
+};

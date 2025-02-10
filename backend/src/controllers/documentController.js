@@ -16,17 +16,58 @@ function transformObjectToArray(obj) {
 }
 
 
+// exports.uploadDocuments = async (req, res) => {
+//   try {
+//     if (!req.files || req.files.length === 0) {
+//       return res.status(400).json({ message: "No files uploaded" });
+//     }
+
+//     const documents = await Promise.all(
+//       req.files.map((file) => documentService.uploadDocument(file))
+//     );
+
+//     res.status(201).json(documents);
+//   } catch (error) {
+//     res.status(400).json({ message: error.message });
+//   }
+// };
+
 exports.uploadDocuments = async (req, res) => {
   try {
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ message: "No files uploaded" });
     }
 
-    const documents = await Promise.all(
-      req.files.map((file) => documentService.uploadDocument(file))
-    );
+    const files = req.files;
+    const uploadedDocuments = [];
 
-    res.status(201).json(documents);
+    for (const file of files) {
+      // Check if a document with the same name already exists
+      const existingDocument = await documentService.getDocumentByName(file.originalname);
+
+      if (existingDocument) {
+        // If the document exists, you can either:
+        // 1. Skip the upload and return a message
+        console.log(`Document with name ${file.originalname} already exists. Skipping upload.`);
+        // 2. Or, you can update the existing document with the new file (be careful with this approach)
+        // For this example, we'll skip the upload
+
+        uploadedDocuments.push({
+          message: `Document with name ${file.originalname} already exists.`,
+          existing: true,
+        });
+      } else {
+        // If the document doesn't exist, upload it
+        const document = await documentService.uploadDocument(file);
+        uploadedDocuments.push(document);
+      }
+    }
+
+    if (uploadedDocuments.length === 0) {
+      return res.status(200).json({ message: "No new files uploaded, all files already exist." });
+    }
+
+    res.status(201).json(uploadedDocuments);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
