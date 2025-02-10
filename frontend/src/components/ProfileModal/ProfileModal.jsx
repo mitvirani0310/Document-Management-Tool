@@ -104,7 +104,29 @@ const ProfileModal = ({ isOpen, onClose, profile, theme, onProfileUpdate }) => {
       }
     } catch (error) {
       console.error("Error saving profile:", error);
-      alert("Error saving profile");
+      if (error.response && error.response.status === 409) {
+        toast.error(error.response.data.message, {
+          position: "bottom-center",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: theme
+        });
+      } else {
+        toast.error("Error saving profile", {
+          position: "bottom-center",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: theme
+        });
+      }
     }
   };
 

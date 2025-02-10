@@ -30,6 +30,9 @@ exports.createProfile = async (req, res) => {
     res.status(201).json(savedProfile);
   } catch (error) {
     console.error("Error creating profile:", error);
+    if (error.message === 'Profile with this name already exists') {
+      return res.status(409).json({ message: error.message });
+    }
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -44,6 +47,9 @@ exports.updateProfile = async (req, res) => {
     res.json(updatedProfile);
   } catch (error) {
     console.error("Error updating profile:", error);
+    if (error.message === 'Profile with this name already exists') {
+      return res.status(409).json({ message: error.message });
+    }
     res.status(500).json({ message: "Server error" });
   }
 };
