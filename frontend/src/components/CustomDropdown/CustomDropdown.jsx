@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react"
-import { ChevronDown, Edit, Plus, Trash } from "lucide-react"
+import { ChevronDown, Copy, Edit, Plus, Trash } from "lucide-react"
 import axios from "axios"
 import { useDocumentType } from "../../contexts/DocumentTypeContext"
 import { FiX } from "react-icons/fi"
@@ -50,11 +50,11 @@ const CustomDropdown = ({ onSelect, theme, defaultOption, fetchProfiles }) => {
   }, [selectedDocumentType, fetchProfiles])
 
   const handleSelect = (option) => {
-    setSelectedOption(option)
-    setSelectedDocumentType(option)
+    setSelectedOption(option);
     if (option.action) {
       onSelect(option)
     } else {
+      setSelectedDocumentType(option);
       onSelect({
         label: option.label,
         value: option.value,
@@ -128,7 +128,7 @@ const CustomDropdown = ({ onSelect, theme, defaultOption, fetchProfiles }) => {
   `
 
   const optionClasses = `
-    flex items-center justify-between w-full px-4 py-2 text-sm text-left ${normalCase}
+    flex items-center whitespace-nowrap justify-between w-full px-4 py-2 text-sm text-left ${normalCase}
     ${theme === "dark" ? "text-gray-300 hover:bg-gray-700" : "text-gray-700 hover:bg-gray-100"}
   `
   const defaultProfileOption = {
@@ -156,15 +156,19 @@ const CustomDropdown = ({ onSelect, theme, defaultOption, fetchProfiles }) => {
             </button>
             {options.map((option) => (
               <button key={option._id} onClick={() => handleSelect(option)} className={optionClasses} role="menuitem">
-                <span>{option.label}</span>
-                <div className="flex">
+                <span className="w-1/2 whitespace-nowrap text-nowrap">{option.label}</span>
+                <div className="flex gap-1">
                   <Edit
-                    className="w-4 h-4 text-gray-400 hover:text-gray-600 mr-2"
+                    className="w-4 h-4 text-gray-400 hover:text-gray-600"
                     onClick={(e) => {
                       e.stopPropagation()
                       handleSelect({ ...option, action: "edit" })
                     }}
-                  />
+                  />  
+                    <Copy onClick={(e ) => {
+                       e.stopPropagation();
+                      handleSelect({ ...option, action: "duplicate" });
+                      }} className="w-4 h-4 text-blue-400 hover:text-blue-600" />                
                   <Trash
                     className="w-4 h-4 text-red-400 hover:text-red-600"
                     onClick={(e) => handleDeleteProfile(e, option)}

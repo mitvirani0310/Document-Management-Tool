@@ -10,6 +10,7 @@ import OutamationAI from "../../../public/outamation-llm.png"
 import { ToastContainer, toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 import ProfileModal from "../ProfileModal/ProfileModal"
+import { useDocumentType } from "../../contexts/DocumentTypeContext"
 
 const API_URL = import.meta.env.VITE_API_URL
 
@@ -20,11 +21,13 @@ function DocumentManagement() {
   const [selectedDocument, setSelectedDocument] = useState(null)
   const [isUploading, setIsUploading] = useState(false)
   const [isFetching, setIsFetching] = useState(false)
-  const [selectedDocumentType, setSelectedDocumentType] = useState({})
+  const {selectedDocumentType, setSelectedDocumentType} = useDocumentType();
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false)
   const [selectedProfile, setSelectedProfile] = useState(null)
   // const [theme, setTheme] = useState("light")
   const [profiles, setProfiles] = useState([]);
+  const [profileCounters, setProfileCounters] = useState({}); // Track counters
+
 
   const navigate = useNavigate()
   const { theme, toggleTheme } = useTheme()
@@ -213,6 +216,19 @@ function DocumentManagement() {
     }
   };
 
+  const handleDuplicateProfile = async (profileData) => {
+    try {
+      const response = await axios.post(`${API_URL}/api/profiles`, profileData);
+      if (response.ok) {
+        toast.success(`Duplicated ${profileData.label} Created Successfully.`)
+      }
+
+    } catch (error) {
+      toast.error('error: ', error);
+    }
+
+  }
+
   const handleDocumentTypeChange = (profile) => {
     if (profile.action === "edit") {
       setSelectedProfile(profile);
@@ -220,17 +236,45 @@ function DocumentManagement() {
     } else if (profile.action === "add") {
       setSelectedProfile(null);
       setIsProfileModalOpen(true);
-    } else {
+    } else if (profile.action === "duplicate") {
+      let baseName = profile.label.trim();
+      let newName = baseName;
+      let counter = profileCounters[baseName] || 1; // Get existing counter or start from 1
+  
+      const existingNames = profiles.map(p => p.label.trim());
+  
+      // Keep incrementing until we find a unique name
+      while (existingNames.includes(newName)) {
+          newName = `${baseName} ${counter}`;
+          counter++;
+      }
+  
+      // Update the counter in state
+      setProfileCounters(prev => ({
+          ...prev,
+          [baseName]: counter, // Store last used counter
+      }));
+  
+      const duplicatedProfile = {
+          label: newName,
+          value: profile.value,
+      };
+  
+      console.log("Duplicated Profile:", duplicatedProfile);
+      handleDuplicateProfile(duplicatedProfile);
+      fetchProfiles();
+  }
+else {  
       setSelectedDocumentType(profile);
     }
   };
-  
+
   const handleCloseProfileModal = () => {
     setIsProfileModalOpen(false)
     setSelectedProfile(null)
   }
 
-  
+
   return (
     <div className={`h-screen flex flex-col ${theme === "dark" ? "bg-gray-900 text-white" : "bg-white text-gray-900"}`}>
       <div className="container mx-auto p-4 flex flex-col flex-grow overflow-hidden">
@@ -244,11 +288,10 @@ function DocumentManagement() {
           <div className="flex items-center space-x-4">
             <button
               onClick={toggleTheme}
-              className={`p-2 rounded-full flex items-center gap-2 ${
-                theme === "dark"
+              className={`p-2 rounded-full flex items-center gap-2 ${theme === "dark"
                   ? "bg-gray-700 text-gray-200 hover:bg-gray-600"
                   : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-              }`}
+                }`}
             >
               {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
@@ -258,13 +301,13 @@ function DocumentManagement() {
         {/* Drag and Drop */}
         <div className="mb-6">
           <div
-            className={`border-2 border-dashed rounded-lg p-4 text-center max-w-full mx-auto ${
-              isDragging ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20" : "border-gray-300"
-            }`}
+            className={`border-2 border-dashed rounded-lg p-4 text-center max-w-full mx-auto ${isDragging ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20" : "border-gray-300"
+              }`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
           >
+          
             <Upload className="mx-auto h-8 w-8 text-gray-400 mb-2" />
             <p className={`text-sm mb-2 ${theme === "dark" ? "text-gray-200" : "text-gray-600"}`}>
               Drag and drop your files here, or
@@ -288,9 +331,8 @@ function DocumentManagement() {
 
         {isUploading || isFetching ? (
           <div
-            className={`flex items-center justify-center h-[calc(100vh-250px)] ${
-              theme === "dark" ? "bg-gray-800" : "bg-white"
-            }`}
+            className={`flex items-center justify-center h-[calc(100vh-250px)] ${theme === "dark" ? "bg-gray-800" : "bg-white"
+              }`}
           >
             <div className="relative flex items-center justify-center">
               <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-blue-500"></div>
@@ -334,28 +376,24 @@ function DocumentManagement() {
                   </tr>
                 </thead>
                 <tbody
-                  className={`divide-y ${
-                    theme === "dark" ? "bg-gray-800 divide-gray-700" : "bg-white divide-gray-200"
-                  }`}
+                  className={`divide-y ${theme === "dark" ? "bg-gray-800 divide-gray-700" : "bg-white divide-gray-200"
+                    }`}
                 >
                   {documents.map((doc) => (
                     <tr
                       key={doc._id}
-                      className={`transition-colors duration-200 ${
-                        theme === "dark" ? "hover:bg-[#5b5858]/30" : "hover:bg-gray-100"
-                      }`}
+                      className={`transition-colors duration-200 ${theme === "dark" ? "hover:bg-[#5b5858]/30" : "hover:bg-gray-100"
+                        }`}
                     >
                       <td
-                        className={`px-6 py-4 text-sm ${
-                          theme === "dark" ? "text-gray-200" : "text-gray-900"
-                        } break-words max-w-xs`}
+                        className={`px-6 py-4 text-sm ${theme === "dark" ? "text-gray-200" : "text-gray-900"
+                          } break-words max-w-xs`}
                       >
                         {doc.name}
                       </td>
                       <td
-                        className={`px-6 py-4 whitespace-nowrap text-sm ${
-                          theme === "dark" ? "text-gray-300" : "text-gray-500"
-                        }`}
+                        className={`px-6 py-4 whitespace-nowrap text-sm ${theme === "dark" ? "text-gray-300" : "text-gray-500"
+                          }`}
                       >
                         {new Date(doc.uploadDate).toLocaleString()}
                       </td>
@@ -365,9 +403,8 @@ function DocumentManagement() {
                         </span>
                       </td>
                       <td
-                        className={`px-6 py-4 whitespace-nowrap text-sm ${
-                          theme === "dark" ? "text-gray-300" : "text-gray-500"
-                        }`}
+                        className={`px-6 py-4 whitespace-nowrap text-sm ${theme === "dark" ? "text-gray-300" : "text-gray-500"
+                          }`}
                       >
                         {(doc.size / (1024 * 1024)).toFixed(2)} MB
                       </td>
