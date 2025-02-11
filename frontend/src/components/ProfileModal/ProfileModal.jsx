@@ -70,7 +70,7 @@ const ProfileModal = ({ isOpen, onClose, profile, theme, onProfileUpdate }) => {
         value: extractionFields
       };
 
-     if(profile.label === selectedDocumentType.label){
+     if(profile && profile.label === selectedDocumentType.label){
       setSelectedDocumentType(profileData);
      }
 

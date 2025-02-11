@@ -95,7 +95,7 @@ const DocumentViewer = () => {
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ data: checkProfile }), // Wrap inside an object
+            body: JSON.stringify(checkProfile), 
           }
         );
   

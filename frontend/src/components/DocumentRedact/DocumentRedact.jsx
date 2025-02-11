@@ -97,7 +97,7 @@ const DocumentRedact = () => {
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ data: checkProfile }),
+            body: JSON.stringify(checkProfile),
           }
         );
   

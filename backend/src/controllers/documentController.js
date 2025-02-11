@@ -199,13 +199,13 @@ exports.extractPdfData = async (req, res) => {
     //   }
     // );
     const baseUrl = `${config.API_DATA_URL}/extract-data?file_path=${encodedPath}`;
-const apiUrl = data_elements === "default" 
-  ? baseUrl
-  : `${baseUrl}&data_elements=${data_elements}`;
+// const apiUrl = data_elements === "default" 
+//   ? baseUrl
+//   : `${baseUrl}&data_elements=${data_elements}`;
 
 const response = await axios.post(
-  apiUrl,     
-  {},
+  baseUrl,     
+  req.body,
   {
     headers: {
       'accept': 'application/json',
