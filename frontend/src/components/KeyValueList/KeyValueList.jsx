@@ -1,6 +1,7 @@
 import { useTheme } from "../../contexts/ThemeContext";
 import React from "react";
-const KeyValueList = ({ data, isRedacted, handleKeyValueClick, isLoading, isRedact, isExtract, handleRedactData, handleExtractData, isSearchable }) => {
+
+const KeyValueList = ({ data, isRedacted, handleKeyValueClick, isLoading,isRedacting, isRedact, isExtract, handleRedactData, handleExtractData, isSearchable }) => {
   const { theme } = useTheme();
 
   if (isLoading) {
@@ -75,7 +76,7 @@ const KeyValueList = ({ data, isRedacted, handleKeyValueClick, isLoading, isReda
             className={`px-6 py-1.5 rounded-md text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white ${isRedacted ? 'opacity-50 cursor-not-allowed' : ''
               }`}
           >
-            Redact Data
+           {isRedacting ? "Redacting..." : "Redact Data"}
           </button>
         }
 

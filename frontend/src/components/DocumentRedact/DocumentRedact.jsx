@@ -125,7 +125,7 @@ const DocumentRedact = () => {
 
 
   const handleRedactData = async () => {
-    setIsLoading(true);  
+    // setIsLoading(true);  
     setIsRedacting(true);
      try {
       const response = await fetch(`${API_URL}/api/documents/${documentId}/redact`, {
@@ -144,7 +144,7 @@ const DocumentRedact = () => {
       const url = URL.createObjectURL(blob);
       setPdfUrl(url);
       if(response.ok){
-        setIsLoading(false);
+        // setIsLoading(false);
         setIsRedacting(false);
         setIsRedacted(true);    
        
@@ -232,7 +232,7 @@ const DocumentRedact = () => {
           gutterSize={8}
           direction="horizontal"
         >
-          <PDFViewer ref={pdfViewerRef} pdfUrl={pdfUrl} isLoading={isLoading} fileName={documentName} isRedacting={isRedacting}/>
+          <PDFViewer ref={pdfViewerRef} pdfUrl={pdfUrl} isLoading={isLoading} fileName={documentName} />
           <KeyValueList
             data={keyValueData}
             handleKeyValueClick={handleKeyValueClick}
@@ -240,6 +240,7 @@ const DocumentRedact = () => {
             isRedact={true}
             isRedacted={isRedacted}
             handleRedactData={handleRedactData}
+            isRedacting={isRedacting}
           />
         </Split>
       </div>
