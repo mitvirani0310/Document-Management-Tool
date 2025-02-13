@@ -19,10 +19,13 @@ import "@react-pdf-viewer/zoom/lib/styles/index.css";
 import "@react-pdf-viewer/bookmark/lib/styles/index.css";
 import React from "react";
 
-const PDFViewer = forwardRef(({ pdfUrl, isLoading, fileName }, ref) => {
+const PDFViewer = forwardRef(({ pdfUrl, isLoading, fileName,isExtract }, ref) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showBookmarks, setShowBookmarks] = useState(false);
   const viewerRef = useRef(null);
+  const [rects, setRects] = useState({});
+  const [startPoint, setStartPoint] = useState(null);
+  const [switchMode, setSwitchMode] = useState(false);
   // const searchPluginInstance = searchPlugin()
   const zoomPluginInstance = zoomPlugin();
   const bookmarkPluginInstance = bookmarkPlugin();
@@ -46,6 +49,70 @@ const PDFViewer = forwardRef(({ pdfUrl, isLoading, fileName }, ref) => {
       }
     },
   }));
+
+
+const handleMouseDown = (event, pageNumber) => {
+  const { offsetX, offsetY } = event.nativeEvent;
+  setStartPoint({ x: offsetX, y: offsetY, pageIndex: pageNumber });
+};
+
+const handleMouseUp = (event) => {
+  if (!startPoint) return;
+
+  const { offsetX, offsetY } = event.nativeEvent;
+  const newRect = {
+      x: Math.min(startPoint.x, offsetX),
+      y: Math.min(startPoint.y, offsetY),
+      width: Math.abs(offsetX - startPoint.x),
+      height: Math.abs(offsetY - startPoint.y),
+      pageIndex: startPoint.pageIndex, // Store the page index
+  };
+
+  setRects(newRect); // Only storing the latest selection
+  console.log("New Rect: ", newRect);
+  setStartPoint(null);
+};
+
+const renderPage = (props) => {
+  return (
+      <div
+          style={{
+              position: "relative",
+              width: "100%",
+              height: "100%",
+              userSelect: switchMode ? "none" : "auto",
+              cursor: "crosshair",
+              overflow: "hidden",
+          }}
+          onMouseDown={(e) => handleMouseDown(e, props.pageIndex)}
+          onMouseUp={handleMouseUp}
+      >
+          {props.canvasLayer.children}
+          {props.annotationLayer.children}
+          {props.textLayer.children}
+
+          {/* Render only if the selection belongs to this page */}
+          {rects && rects.pageIndex === props.pageIndex && (
+              <div
+                  style={{
+                      position: "absolute",
+                      border: "2px solid red",
+                      left: `${rects.x}px`,
+                      top: `${rects.y}px`,
+                      width: `${rects.width}px`,
+                      height: `${rects.height}px`,
+                      backgroundColor: "rgba(255, 0, 0, 0.2)", // Transparent highlight
+                  }}
+              />
+          )}
+      </div>
+  );
+};
+
+const handleSwitchMode = () => {
+  setSwitchMode((prev) => !prev);
+  setRects(null);
+};
 
   const handleDownload = async () => {
     try {
@@ -142,10 +209,18 @@ const PDFViewer = forwardRef(({ pdfUrl, isLoading, fileName }, ref) => {
           </button>
         </div>
       </div>
-      {fileName && <span  className={`text-sm  ml-7 mb-2 mx-3 font-semibold ${
+      {/* <div className="flex items-center justify-between px-5 py-1 mb-2"> */}
+   {fileName && <span  className={`text-sm mb-2  ml-7 mx-3 font-semibold ${
                   theme === "dark" ? "text-gray-300" : "text-gray-600"
                 }`}><span className="text-blue-600">{"File Name : "}</span>{fileName}</span>}
-
+                 {/* {isExtract && <button
+            onClick={handleSwitchMode}
+            className={`py-1 px-2 mr-1 rounded-lg whitespace-nowrap ${theme === "dark" ? "bg-blue-600 hover:bg-blue-700" : "bg-blue-500 hover:bg-blue-600"} text-white text-[0.70rem] font-normal`}
+          >
+            {switchMode ? "Disable Redacting" : "Redact Manually"}
+          </button>} */}
+          {/* {rects && rects.x + "and" + rects.y} */}
+   {/* </div> */}
       {pdfUrl ? (
         <div className="flex flex-1 overflow-hidden">
           <Bookmark
@@ -170,6 +245,7 @@ const PDFViewer = forwardRef(({ pdfUrl, isLoading, fileName }, ref) => {
                 ]}
                 scrollMode="vertical"
                 defaultScale="PageWidth"
+                {...(switchMode && { renderPage })}
                 theme={theme}
                 ref={viewerRef}
               />

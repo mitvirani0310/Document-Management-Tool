@@ -99,6 +99,11 @@ body {
   scroll-behavior: smooth;
 }
 
+.rpv-core__viewer {
+  overflow-x: hidden !important;
+}
+
+
 .rpv-search__highlight {
   background-color: rgba(253, 224, 71, 0.4) !important; /* Light yellow with opacity for all matches */
   border-radius: 2px;

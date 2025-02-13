@@ -225,7 +225,7 @@ const DocumentRedact = () => {
           gutterSize={8}
           direction="horizontal"
         >
-          <PDFViewer ref={pdfViewerRef} pdfUrl={pdfUrl} isLoading={isLoading} fileName={documentName} />
+          <PDFViewer ref={pdfViewerRef} pdfUrl={pdfUrl} isLoading={isLoading} fileName={documentName} isExtract={true}/>
           <KeyValueList
             data={keyValueData}
             handleKeyValueClick={handleKeyValueClick}

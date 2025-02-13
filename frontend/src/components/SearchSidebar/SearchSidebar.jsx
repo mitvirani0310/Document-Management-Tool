@@ -9,6 +9,216 @@ const SearchStatus = {
   FoundResults: "FoundResults",
 };
 
+// const SearchSidebar = ({ searchPluginInstance, searchQuery, setSearchQuery, searchButtonRef, showBookmarks }) => {
+//   const { theme } = useTheme()
+//   const [searchStatus, setSearchStatus] = useState(SearchStatus.NotSearchedYet);
+//   const { Search } = searchPluginInstance
+//   const [matches, setMatches] = useState([])
+//   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
+//   const inputRef = useRef(null);
+//   const isNavigating = useRef(false);
+//   const [isFocused, setIsFocused] = useState(false);
+
+
+//   const maintainFocus = useCallback(() => {
+//     if (inputRef.current && isFocused && !isNavigating.current) {
+//       inputRef.current.focus();
+//     }
+//   }, [isFocused]);
+
+
+//   // useEffect(() => {
+//   //   const timeoutId = setTimeout(maintainFocus, 100);
+//   //   return () => clearTimeout(timeoutId);
+//   // }, [showBookmarks, maintainFocus]);
+
+//   return (
+//     <Search>
+//       {({
+//         currentMatch,
+//         keyword,
+//         setKeyword,
+//         jumpToMatch,
+//         jumpToNextMatch,
+//         jumpToPreviousMatch,
+//         search,
+//       }) => {
+//         useEffect(() => {
+//           if (searchQuery !== keyword) {
+//             setKeyword(searchQuery);
+//             if (searchQuery.trim()) {
+//               handleSearch();
+//             } else {
+//               setMatches([]);
+//               setCurrentMatchIndex(0);
+//             }
+//           }
+//         }, [searchQuery, keyword, setKeyword]);
+
+//         useEffect(() => {
+//           const handleClickOutside = (event) => {
+//             if (inputRef.current && !inputRef.current.contains(event.target)) {
+//               setIsFocused(false);
+//               inputRef.current.blur(); // Ensure input loses focus
+//             }
+//           };
+
+//           const handlePaste = (event) => {
+//             if (inputRef.current && !inputRef.current.contains(event.target)) {
+//               setIsFocused(false);
+//               inputRef.current.blur();
+//             }
+//           };
+
+//           document.addEventListener("mousedown", handleClickOutside);
+//           document.addEventListener("paste", handlePaste);
+
+//           return () => {
+//             document.removeEventListener("mousedown", handleClickOutside);
+//             document.removeEventListener("paste", handlePaste);
+//           };
+//         }, []);
+
+
+//         const handleSearch = () => {
+//           if (keyword.trim()) {
+//             setSearchStatus(SearchStatus.Searching);
+//             setCurrentMatchIndex(0);
+//             search().then((searchMatches) => {
+//               setSearchStatus(SearchStatus.FoundResults);
+//               setMatches(searchMatches);
+//               if (searchMatches && searchMatches.length > 0) {
+//                 setCurrentMatchIndex(1);
+//                 isNavigating.current = true;
+//                 jumpToMatch(searchMatches[0]);
+//                 setTimeout(() => {
+//                   isNavigating.current = false;
+//                   maintainFocus();
+//                 }, 20);
+//               }
+//             });
+//           } else {
+//             setMatches([]);
+//             setCurrentMatchIndex(0);
+//             setSearchStatus(SearchStatus.NotSearchedYet);
+//             maintainFocus();
+//           }
+//         };
+
+//         const handleInputChange = (e) => {
+//           const newValue = e.target.value;
+//           setKeyword(newValue);
+//           setSearchQuery(newValue);
+//         };
+
+//         const handleKeyPress = (e) => {
+//           if (e.key === "Enter") {
+//             handleSearch();
+//           }
+//         };
+
+//         const handleNextMatch = () => {
+//           // isNavigating.current = true;
+//           jumpToNextMatch();
+//           setCurrentMatchIndex((prevIndex) =>
+//             prevIndex < matches.length ? prevIndex + 1 : 1
+//           );
+//           // Don't immediately try to restore focus while navigating
+//           setTimeout(() => {
+//             isNavigating.current = false;
+//           }, 300);
+//         };
+
+//         const handlePreviousMatch = () => {
+//           isNavigating.current = true;
+//           jumpToPreviousMatch();
+//           setCurrentMatchIndex((prevIndex) =>
+//             prevIndex > 1 ? prevIndex - 1 : matches.length
+//           );
+//           // Don't immediately try to restore focus while navigating
+//           setTimeout(() => {
+//             isNavigating.current = false;
+//           }, 300);
+//         };
+
+//         const getDisplayText = () => {
+//           if (matches.length === 0) return "No matches";
+//           return `${currentMatchIndex}/${matches.length} matches`;
+//         };
+
+//         return (
+//           <div className="flex flex-row h-full w-full items-center gap-2 overflow-hidden">
+//             <div className="flex items-center gap-2 p-2">
+//               <div className="relative flex items-center">
+//                 <input
+//                   ref={inputRef}
+//                   placeholder="Enter to search"
+//                   value={keyword}
+//                   onChange={handleInputChange}
+//                   onKeyPress={handleKeyPress}
+//                   onFocus={() => setIsFocused(true)}
+//                   onBlur={() => {
+//                     setTimeout(() => {
+//                       if (!isNavigating.current) {
+//                         setIsFocused(false);
+//                       }
+//                     }, 100);
+//                   }}
+//                   className={`flex-1 px-3 w-72 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm ${theme === "dark"
+//                       ? "bg-gray-700 text-white border-gray-600"
+//                       : "bg-white text-gray-900 border-gray-300"
+//                     }`}
+//                 />
+//                 <button
+//                   ref={searchButtonRef}
+//                   onClick={() => {
+//                     handleSearch();
+//                     maintainFocus();
+//                   }}
+//                   className={`ml-2 p-2 rounded-lg ${theme === "dark"
+//                       ? "bg-blue-600 text-white hover:bg-blue-700"
+//                       : "bg-blue-500 text-white hover:bg-blue-600"
+//                     }`}
+//                 >
+//                   <FiSearch />
+//                 </button>
+//               </div>
+//             </div>
+
+//             <div className="flex items-center justify-center gap-1">
+//               <button
+//                 onClick={handlePreviousMatch}
+//                 disabled={matches.length === 0 || currentMatchIndex === 1}
+//                 className={`p-2 rounded-lg ${theme === "dark"
+//                     ? "bg-blue-600 text-white hover:bg-blue-700"
+//                     : "bg-blue-500 text-white hover:bg-blue-600"
+//                   } disabled:opacity-50 disabled:cursor-not-allowed`}
+//               >
+//                 <FiChevronLeft />
+//               </button>
+//               <span
+//                 className={`text-sm mx-3 ${theme === "dark" ? "text-gray-300" : "text-gray-600"
+//                   }`}
+//               >
+//                 {getDisplayText()}
+//               </span>
+//               <button
+//                 onClick={handleNextMatch}
+//                 disabled={matches.length === 0 || currentMatchIndex === matches.length}
+//                 className={`p-2 rounded-lg ${theme === "dark"
+//                     ? "bg-blue-600 text-white hover:bg-blue-700"
+//                     : "bg-blue-500 text-white hover:bg-blue-600"
+//                   } disabled:opacity-50 disabled:cursor-not-allowed`}
+//               >
+//                 <FiChevronRight />
+//               </button>
+//             </div>
+//           </div>
+//         );
+//       }}
+//     </Search>
+//   );
+// }
 const SearchSidebar = ({ searchPluginInstance, searchQuery, setSearchQuery, searchButtonRef, showBookmarks }) => {
   const { theme } = useTheme()
   const [searchStatus, setSearchStatus] = useState(SearchStatus.NotSearchedYet);
@@ -16,21 +226,6 @@ const SearchSidebar = ({ searchPluginInstance, searchQuery, setSearchQuery, sear
   const [matches, setMatches] = useState([])
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
   const inputRef = useRef(null);
-  const isNavigating = useRef(false);
-  const [isFocused, setIsFocused] = useState(false);
-
-
-  const maintainFocus = useCallback(() => {
-    if (inputRef.current && isFocused && !isNavigating.current) {
-      inputRef.current.focus();
-    }
-  }, [isFocused]);
-
-
-  // useEffect(() => {
-  //   const timeoutId = setTimeout(maintainFocus, 100);
-  //   return () => clearTimeout(timeoutId);
-  // }, [showBookmarks, maintainFocus]);
 
   return (
     <Search>
@@ -55,54 +250,42 @@ const SearchSidebar = ({ searchPluginInstance, searchQuery, setSearchQuery, sear
           }
         }, [searchQuery, keyword, setKeyword]);
 
+        // Simplified click outside handler
         useEffect(() => {
           const handleClickOutside = (event) => {
-            if (inputRef.current && !inputRef.current.contains(event.target)) {
-              setIsFocused(false);
-              inputRef.current.blur(); // Ensure input loses focus
-            }
-          };
-
-          const handlePaste = (event) => {
-            if (inputRef.current && !inputRef.current.contains(event.target)) {
-              setIsFocused(false);
+            // Only handle clicks that are not on the input or search-related buttons
+            if (
+              inputRef.current &&
+              !inputRef.current.contains(event.target) &&
+              !event.target.closest('button')
+            ) {
               inputRef.current.blur();
             }
           };
 
-          document.addEventListener("mousedown", handleClickOutside);
-          document.addEventListener("paste", handlePaste);
-
-          return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-            document.removeEventListener("paste", handlePaste);
-          };
+          window.addEventListener("mousedown", handleClickOutside);
+          return () => window.removeEventListener("mousedown", handleClickOutside);
         }, []);
 
-
         const handleSearch = () => {
-          if (keyword.trim()) {
-            setSearchStatus(SearchStatus.Searching);
-            setCurrentMatchIndex(0);
-            search().then((searchMatches) => {
-              setSearchStatus(SearchStatus.FoundResults);
-              setMatches(searchMatches);
-              if (searchMatches && searchMatches.length > 0) {
-                setCurrentMatchIndex(1);
-                isNavigating.current = true;
-                jumpToMatch(searchMatches[0]);
-                setTimeout(() => {
-                  isNavigating.current = false;
-                  maintainFocus();
-                }, 20);
-              }
-            });
-          } else {
+          if (!keyword.trim()) {
             setMatches([]);
             setCurrentMatchIndex(0);
             setSearchStatus(SearchStatus.NotSearchedYet);
-            maintainFocus();
+            return;
           }
+
+          setSearchStatus(SearchStatus.Searching);
+          setCurrentMatchIndex(0);
+
+          search().then((searchMatches) => {
+            setSearchStatus(SearchStatus.FoundResults);
+            setMatches(searchMatches);
+            if (searchMatches?.length > 0) {
+              setCurrentMatchIndex(1);
+              jumpToMatch(searchMatches[0]);
+            }
+          });
         };
 
         const handleInputChange = (e) => {
@@ -118,27 +301,21 @@ const SearchSidebar = ({ searchPluginInstance, searchQuery, setSearchQuery, sear
         };
 
         const handleNextMatch = () => {
-          // isNavigating.current = true;
           jumpToNextMatch();
           setCurrentMatchIndex((prevIndex) =>
             prevIndex < matches.length ? prevIndex + 1 : 1
           );
-          // Don't immediately try to restore focus while navigating
-          setTimeout(() => {
-            isNavigating.current = false;
-          }, 300);
+          // Ensure input maintains focus
+          inputRef.current?.focus();
         };
 
         const handlePreviousMatch = () => {
-          isNavigating.current = true;
           jumpToPreviousMatch();
           setCurrentMatchIndex((prevIndex) =>
             prevIndex > 1 ? prevIndex - 1 : matches.length
           );
-          // Don't immediately try to restore focus while navigating
-          setTimeout(() => {
-            isNavigating.current = false;
-          }, 300);
+          // Ensure input maintains focus
+          inputRef.current?.focus();
         };
 
         const getDisplayText = () => {
@@ -156,24 +333,17 @@ const SearchSidebar = ({ searchPluginInstance, searchQuery, setSearchQuery, sear
                   value={keyword}
                   onChange={handleInputChange}
                   onKeyPress={handleKeyPress}
-                  onFocus={() => setIsFocused(true)}
-                  onBlur={() => {
-                    setTimeout(() => {
-                      if (!isNavigating.current) {
-                        setIsFocused(false);
-                      }
-                    }, 100);
-                  }}
-                  className={`flex-1 px-3 w-72 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm ${theme === "dark"
-                      ? "bg-gray-700 text-white border-gray-600"
-                      : "bg-white text-gray-900 border-gray-300"
-                    }`}
+                  autoFocus
+                  className={`flex-1 px-3 w-72 py-2 border rounded-lg text-sm 
+    ${theme === "dark" ? "bg-gray-700 text-white border-gray-600" : "bg-white text-gray-900 border-gray-300"}
+  `}
+                  style={{ outline: "none", boxShadow: "none" }} // Removes focus outline and box shadow
                 />
                 <button
                   ref={searchButtonRef}
                   onClick={() => {
                     handleSearch();
-                    maintainFocus();
+                    inputRef.current?.focus();
                   }}
                   className={`ml-2 p-2 rounded-lg ${theme === "dark"
                       ? "bg-blue-600 text-white hover:bg-blue-700"
@@ -218,7 +388,6 @@ const SearchSidebar = ({ searchPluginInstance, searchQuery, setSearchQuery, sear
       }}
     </Search>
   );
-}
+};
 
-export default SearchSidebar
-
+export default SearchSidebar;
