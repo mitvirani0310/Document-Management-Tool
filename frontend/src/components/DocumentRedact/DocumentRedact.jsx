@@ -159,7 +159,9 @@ const DocumentRedact = () => {
 
   useEffect(() => { 
     if(isRedacted){
-      setDocumentName(documentName + "_redacted.pdf");
+      const nameWithoutExtension = documentName.replace(/\.pdf$/, ""); //
+
+      setDocumentName(nameWithoutExtension + "_redacted.pdf");
     } 
 
   },[isRedacted] );

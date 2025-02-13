@@ -188,6 +188,7 @@ const DocumentViewer = () => {
             data={keyValueData}
             handleKeyValueClick={handleKeyValueClick}
             isLoading={isExtractingData}
+            isExtract={true}
           />
         </Split>
       </div>

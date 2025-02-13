@@ -14,6 +14,8 @@ dist-ssr
 
 # Ignore backend uploads folder
 backend/uploads/
+backend/redacted-uploads/
+backend/redacted-uploads/*
 backend/uploads/*
 frontend/.env
 backend/.env

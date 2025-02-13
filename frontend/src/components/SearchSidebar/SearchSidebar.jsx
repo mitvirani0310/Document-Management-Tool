@@ -118,7 +118,7 @@ const SearchSidebar = ({ searchPluginInstance, searchQuery, setSearchQuery, sear
         };
 
         const handleNextMatch = () => {
-          isNavigating.current = true;
+          // isNavigating.current = true;
           jumpToNextMatch();
           setCurrentMatchIndex((prevIndex) =>
             prevIndex < matches.length ? prevIndex + 1 : 1
