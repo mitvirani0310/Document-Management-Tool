@@ -124,36 +124,29 @@ const DocumentRedact = () => {
   }, [documentId]);
 
 
-  const handleRedactData = async () => {
-    // setIsLoading(true);  
+  const handleRedactData = async (selectedData) => {
     setIsRedacting(true);
-     try {
+    try {
       const response = await fetch(`${API_URL}/api/documents/${documentId}/redact`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify( keyValueData ),   // Ensure keyValueData is sent as part of the body
+        body: JSON.stringify(selectedData), // Now using the selected data
       });
   
       if (!response.ok) {
         throw new Error("Failed to redact data");
       }
-      // Assuming the response is a PDF blob
+      
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
       setPdfUrl(url);
-      if(response.ok){
-        // setIsLoading(false);
-        setIsRedacting(false);
-        setIsRedacted(true);    
-       
-      }
-    
-      // Set the blob URL to pdfUrl
-      // Optionally, update state or notify the user
+      setIsRedacting(false);
+      setIsRedacted(true);
     } catch (error) {
       console.error("Error redacting data:", error);
+      setIsRedacting(false);
     }
   };
 
