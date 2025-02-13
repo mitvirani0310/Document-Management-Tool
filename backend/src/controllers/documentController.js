@@ -42,6 +42,17 @@ exports.uploadDocuments = async (req, res) => {
     const uploadedDocuments = [];
 
     for (const file of files) {
+
+      if (file.mimetype !== 'application/pdf') {
+        console.log(`File ${file.originalname} is not a PDF. Skipping upload.`);
+        uploadedDocuments.push({
+          message: `File ${file.originalname} is not a PDF.`,
+          existing: true, // Or a more appropriate status like 'invalid_type'
+        });
+        continue; // Skip to the next file
+      }
+
+
       // Check if a document with the same name already exists
       const existingDocument = await documentService.getDocumentByName(file.originalname);
 
