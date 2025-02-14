@@ -121,11 +121,9 @@ const KeyValueList = ({ data, isRedacted, handleKeyValueClick, isLoading, isReda
               <th className={`w-2/3 px-6 py-4 text-left text-xs font-semibold ${theme === "dark" ? "text-gray-300" : "text-gray-600"} uppercase tracking-wider`}>
                 Value
               </th>
-              {isExtract && !isRedact && (
                 <th className={`w-3/3 px-6 py-4 text-left text-xs font-semibold ${theme === "dark" ? "text-gray-300" : "text-gray-600"} uppercase tracking-wider`}>
                   Confidence Score
                 </th>
-              )}
             </tr>
           </thead>
           <tbody className={`${theme === "dark" ? "bg-gray-800" : "bg-white"} divide-y ${theme === "dark" ? "divide-gray-700" : "divide-gray-200"}`}>
@@ -159,11 +157,9 @@ const KeyValueList = ({ data, isRedacted, handleKeyValueClick, isLoading, isReda
                   >
                     {valueObj?.value ?? "N/A"}
                   </td>
-                  {isExtract && !isRedact && (
                     <td className={`w-3/3 px-6 py-4 text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                       {confidencePercentage}
                     </td>
-                  )}
                 </tr>
               );
             })}

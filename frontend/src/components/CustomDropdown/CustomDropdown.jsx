@@ -144,7 +144,7 @@ const CustomDropdown = ({ onSelect, theme, defaultOption, fetchProfiles }) => {
   }
 
   return (
-    <div className="relative inline-block text-left w-44 z-50" ref={dropdownRef}>
+    <div className="relative inline-block text-left w-[184px] z-50" ref={dropdownRef}>
       <button type="button" onClick={() => setIsOpen(!isOpen)} className={buttonClasses}>
       {selectedDocumentType === "default" ? " Select Profile" : selectedDocumentType?.label || "Select Profile"}
 
@@ -164,7 +164,7 @@ const CustomDropdown = ({ onSelect, theme, defaultOption, fetchProfiles }) => {
             </button>
             {options.map((option) => (
               <button key={option._id} onClick={() => handleSelect(option)} className={optionClasses} role="menuitem">
-                <span className="w-1/2 whitespace-nowrap text-nowrap">{option.label}</span>
+                <span className="w-3/5 whitespace-normal text-left">{option.label}</span>
                 <div className="flex gap-1">
                   <Edit
                     className="w-4 h-4 text-gray-400 hover:text-gray-600"
