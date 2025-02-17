@@ -87,9 +87,6 @@ const PDFViewer = forwardRef(({ pdfUrl, isLoading, fileName, isExtract }, ref) =
         height: newRect.height,
       },
     }
-
-    console.log("Actual PDF Coordinates:", actualCoordinates)
-
     setRects((prevRects) => [...prevRects, newRect])
     setTempRect(null)
     setIsDragging(false)

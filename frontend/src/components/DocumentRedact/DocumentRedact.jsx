@@ -234,6 +234,7 @@ const DocumentRedact = () => {
             isRedacted={isRedacted}
             handleRedactData={handleRedactData}
             isRedacting={isRedacting}
+            setData={setKeyValueData}
           />
         </Split>
       </div>
