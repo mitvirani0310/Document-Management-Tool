@@ -1,175 +1,298 @@
-import {
-  forwardRef,
-  useState,
-  useImperativeHandle,
-  useRef,
-  useCallback,
-} from "react";
-import { Worker, Viewer } from "@react-pdf-viewer/core";
-import { searchPlugin } from "@react-pdf-viewer/search";
-import { zoomPlugin } from "@react-pdf-viewer/zoom";
-import { bookmarkPlugin } from "@react-pdf-viewer/bookmark";
-import { FiDownload, FiBookmark } from "react-icons/fi";
-import SearchSidebar from "../SearchSidebar/SearchSidebar";
-import Bookmark from "../Bookmark/Bookmark";
-import { useTheme } from "../../contexts/ThemeContext";
+import { forwardRef, useState, useImperativeHandle, useRef, useCallback } from "react"
+import { Worker, Viewer } from "@react-pdf-viewer/core"
+import { searchPlugin } from "@react-pdf-viewer/search"
+import { zoomPlugin } from "@react-pdf-viewer/zoom"
+import { bookmarkPlugin } from "@react-pdf-viewer/bookmark"
+import { FiDownload, FiBookmark } from "react-icons/fi"
+import SearchSidebar from "../SearchSidebar/SearchSidebar"
+import Bookmark from "../Bookmark/Bookmark"
+import { useTheme } from "../../contexts/ThemeContext"
 
-import "@react-pdf-viewer/core/lib/styles/index.css";
-import "@react-pdf-viewer/zoom/lib/styles/index.css";
-import "@react-pdf-viewer/bookmark/lib/styles/index.css";
-import React from "react";
+import "@react-pdf-viewer/core/lib/styles/index.css"
+import "@react-pdf-viewer/zoom/lib/styles/index.css"
+import "@react-pdf-viewer/bookmark/lib/styles/index.css"
+import React from "react"
 
-const PDFViewer = forwardRef(({ pdfUrl, isLoading, fileName,isExtract }, ref) => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showBookmarks, setShowBookmarks] = useState(false);
-  const viewerRef = useRef(null);
-  const [rects, setRects] = useState({});
-  const [startPoint, setStartPoint] = useState(null);
-  const [switchMode, setSwitchMode] = useState(false);
-  // const searchPluginInstance = searchPlugin()
-  const zoomPluginInstance = zoomPlugin();
-  const bookmarkPluginInstance = bookmarkPlugin();
-  const searchButtonRef = useRef(null);
-  const { theme } = useTheme();
-  const { Bookmarks } = bookmarkPluginInstance;
+const PDFViewer = forwardRef(({ pdfUrl, isLoading, fileName, isExtract }, ref) => {
+  const [searchQuery, setSearchQuery] = useState("")
+  const [showBookmarks, setShowBookmarks] = useState(false)
+  const viewerRef = useRef(null)
+  const [rects, setRects] = useState([]) // Changed to an array to hold multiple rectangles
+  const [startPoint, setStartPoint] = useState(null)
+  const [switchMode, setSwitchMode] = useState(false)
+  const zoomPluginInstance = zoomPlugin()
+  const bookmarkPluginInstance = bookmarkPlugin()
+  const searchButtonRef = useRef(null)
+  const { theme } = useTheme()
+  const { Bookmarks } = bookmarkPluginInstance
 
-  const { ZoomInButton, ZoomOutButton, ZoomPopover } = zoomPluginInstance;
+  const { ZoomInButton, ZoomOutButton, ZoomPopover } = zoomPluginInstance
+  const [isDragging, setIsDragging] = useState(false)
+  const [scaleFactor, setScaleFactor] = useState(1)
+  const [originalPageDimensions, setOriginalPageDimensions] = useState(null)
+  const [tempRect, setTempRect] = useState(null)
 
   const searchPluginInstance = searchPlugin({
     keyword: searchQuery,
-  });
+  })
 
   useImperativeHandle(ref, () => ({
     search: (value) => {
-      setSearchQuery(value);
+      setSearchQuery(value)
       if (searchButtonRef.current) {
         setTimeout(() => {
-          searchButtonRef.current.click();
-        }, 20);
+          searchButtonRef.current.click()
+        }, 20)
       }
     },
-  }));
+  }))
 
+  const handleMouseDown = (event, pageIndex) => {
+    if (!switchMode) return
 
-const handleMouseDown = (event, pageNumber) => {
-  const { offsetX, offsetY } = event.nativeEvent;
-  setStartPoint({ x: offsetX, y: offsetY, pageIndex: pageNumber });
-};
+    const target = event.currentTarget
+    const rect = target.getBoundingClientRect()
 
-const handleMouseUp = (event) => {
-  if (!startPoint) return;
+    const x = (event.clientX - rect.left) / rect.width
+    const y = (event.clientY - rect.top) / rect.height
 
-  const { offsetX, offsetY } = event.nativeEvent;
-  const newRect = {
-      x: Math.min(startPoint.x, offsetX),
-      y: Math.min(startPoint.y, offsetY),
-      width: Math.abs(offsetX - startPoint.x),
-      height: Math.abs(offsetY - startPoint.y),
-      pageIndex: startPoint.pageIndex, // Store the page index
-  };
+    setStartPoint({ x, y, pageIndex })
+    setIsDragging(true)
+  }
 
-  setRects(newRect); // Only storing the latest selection
-  console.log("New Rect: ", newRect);
-  setStartPoint(null);
-};
+  const handleMouseUp = (event) => {
+    if (!startPoint || !isDragging) return
 
-const renderPage = (props) => {
-  return (
+    const target = event.currentTarget
+    const rect = target.getBoundingClientRect()
+
+    const x = (event.clientX - rect.left) / rect.width
+    const y = (event.clientY - rect.top) / rect.height
+
+    const newRect = {
+      x: Math.min(startPoint.x, x),
+      y: Math.min(startPoint.y, y),
+      width: Math.abs(x - startPoint.x),
+      height: Math.abs(y - startPoint.y),
+      pageIndex: startPoint.pageIndex,
+    }
+
+    // Convert coordinates to actual PDF dimensions
+    const actualCoordinates = {
+      pageNumber: newRect.pageIndex + 1,
+      coordinates: {
+        x: newRect.x,
+        y: newRect.y,
+        width: newRect.width,
+        height: newRect.height,
+      },
+    }
+
+    console.log("Actual PDF Coordinates:", actualCoordinates)
+
+    setRects((prevRects) => [...prevRects, newRect])
+    setTempRect(null)
+    setIsDragging(false)
+    setStartPoint(null)
+  }
+
+  const handleMouseMove = (event) => {
+    if (!isDragging || !startPoint || !switchMode) return
+
+    const target = event.currentTarget
+    const rect = target.getBoundingClientRect()
+
+    const x = (event.clientX - rect.left) / rect.width
+    const y = (event.clientY - rect.top) / rect.height
+
+    const newRect = {
+      x: Math.min(startPoint.x, x),
+      y: Math.min(startPoint.y, y),
+      width: Math.abs(x - startPoint.x),
+      height: Math.abs(y - startPoint.y),
+      pageIndex: startPoint.pageIndex,
+    }
+
+    setTempRect(newRect)
+  }
+
+  const renderPage = (props) => {
+    return (
       <div
-          style={{
-              position: "relative",
+        style={{
+          position: "relative",
+          width: "100%",
+          height: "100%",
+          userSelect: switchMode ? "none" : "auto",
+          cursor: switchMode ? "crosshair" : "auto",
+          overflow: "hidden",
+          resize: switchMode ? "none" : "auto",
+        }}
+      >
+        {props.canvasLayer.children}
+        {props.annotationLayer.children}
+        {props.textLayer.children}
+
+        {switchMode && (
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
               width: "100%",
               height: "100%",
-              userSelect: switchMode ? "none" : "auto",
-              cursor: "crosshair",
-              overflow: "hidden",
+              zIndex: 1000,
+            }}
+            onMouseDown={(e) => handleMouseDown(e, props.pageIndex)}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={() => {
+              if (isDragging) {
+                setIsDragging(false)
+                setStartPoint(null)
+                setTempRect(null)
+              }
+            }}
+          />
+        )}
+
+        {/* Permanent rectangles */}
+{rects.map(
+  (rect, index) =>
+    rect.pageIndex === props.pageIndex && (
+      <React.Fragment key={index}>
+        {/* Label - Placed first to ensure it's rendered above the rectangle */}
+        <div
+          style={{
+            position: "absolute",
+            left: `${rect.x * 100}%`,
+            top: `${rect.y * 100}%`,
+            transform: 'translate(0, -30px)', // Move up by fixed amount
+            backgroundColor: "rgba(0, 0, 0, 0.9)",
+            color: "white",
+            padding: "4px 8px",
+            fontSize: "12px",
+            borderRadius: "4px",
+            zIndex: 1003, // Increased z-index
+            whiteSpace: "nowrap",
+            pointerEvents: "none",
+            boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+            border: "1px solid rgba(255, 255, 255, 0.2)",
           }}
-          onMouseDown={(e) => handleMouseDown(e, props.pageIndex)}
-          onMouseUp={handleMouseUp}
-      >
-          {props.canvasLayer.children}
-          {props.annotationLayer.children}
-          {props.textLayer.children}
+        >
+          Start: ({rect.x.toFixed(2)}, {rect.y.toFixed(2)}) | 
+          End: ({(rect.x + rect.width).toFixed(2)}, {(rect.y + rect.height).toFixed(2)}) | 
+          Page: {rect.pageIndex + 1}
+        </div>
 
-          {/* Render only if the selection belongs to this page */}
-          {rects && rects.pageIndex === props.pageIndex && (
-              <div
-                  style={{
-                      position: "absolute",
-                      border: "2px solid red",
-                      left: `${rects.x}px`,
-                      top: `${rects.y}px`,
-                      width: `${rects.width}px`,
-                      height: `${rects.height}px`,
-                      backgroundColor: "rgba(255, 0, 0, 0.2)", // Transparent highlight
-                  }}
-              />
-          )}
+        {/* Rectangle */}
+        <div
+          style={{
+            position: "absolute",
+            border: "2px solid red",
+            left: `${rect.x * 100}%`,
+            top: `${rect.y * 100}%`,
+            width: `${rect.width * 100}%`,
+            height: `${rect.height * 100}%`,
+            backgroundColor: "rgba(255, 0, 0, 0.2)",
+            pointerEvents: "none",
+            zIndex: 1001,
+          }}
+        />
+      </React.Fragment>
+    ),
+)}
+
+        {/* Temporary rectangle while drawing */}
+        {tempRect && tempRect.pageIndex === props.pageIndex && (
+          <div
+            style={{
+              position: "absolute",
+              border: "2px dashed red",
+              left: `${tempRect.x * 100}%`,
+              top: `${tempRect.y * 100}%`,
+              width: `${tempRect.width * 100}%`,
+              height: `${tempRect.height * 100}%`,
+              backgroundColor: "rgba(255, 0, 0, 0.1)",
+              pointerEvents: "none",
+              zIndex: 1001,
+            }}
+          />
+        )}
       </div>
-  );
-};
+    )
+  }
 
-const handleSwitchMode = () => {
-  setSwitchMode((prev) => !prev);
-  setRects(null);
-};
+  React.useEffect(() => {
+    const updateDimensions = (width, height) => {
+      if (width && height) {
+        setOriginalPageDimensions({
+          width,
+          height,
+        })
+      }
+    }
+
+    // You can access the dimensions through the viewerRef if needed
+    if (viewerRef.current) {
+      const page = viewerRef.current.getElementsByClassName("rpv-core__page")[0]
+      if (page) {
+        updateDimensions(page.offsetWidth, page.offsetHeight)
+      }
+    }
+  }, [])
+
+  const handleSwitchMode = () => {
+    setSwitchMode((prev) => !prev)
+    setRects([]) // Clear all rectangles when switching mode
+  }
 
   const handleDownload = async () => {
     try {
-      const response = await fetch(pdfUrl);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "document.pdf";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+      const response = await fetch(pdfUrl)
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement("a")
+      link.href = url
+      link.download = "document.pdf"
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
     } catch (error) {
-      console.error("Download failed:", error);
+      console.error("Download failed:", error)
     }
-  };
+  }
 
   const toggleBookmarks = useCallback(() => {
     setShowBookmarks((prev) => {
-      const newState = !prev;
+      const newState = !prev
       if (searchQuery.trim() && searchButtonRef.current) {
         setTimeout(() => {
-          searchButtonRef.current.click();
-        }, 100);
+          searchButtonRef.current.click()
+        }, 100)
       }
-      return newState;
-    });
-  }, [searchQuery]);
+      return newState
+    })
+  }, [searchQuery])
 
   if (isLoading) {
     return (
-      <div
-        className={`flex items-center justify-center h-full ${
-          theme === "dark" ? "bg-gray-800" : "bg-white"
-        }`}
-      >
-        {/* <div className="animate-spin rounded-full h-12 w-12 border-4 border-t-blue-500" />
-         */}
-         <div className="relative flex items-center justify-center">
+      <div className={`flex items-center justify-center h-full ${theme === "dark" ? "bg-gray-800" : "bg-white"}`}>
+        <div className="relative flex items-center justify-center">
           <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-blue-500"></div>
           <div className="absolute">
-            <p className={`text-base font-medium ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
-            {'Loading PDF...'}
+            <p className={`text-base font-medium ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+              {"Loading PDF..."}
             </p>
           </div>
         </div>
       </div>
-    );
+    )
   }
 
   return (
-    <div
-      className={`flex flex-col h-full ${
-        theme === "dark" ? "bg-gray-800" : "bg-white"
-      } rounded-lg shadow-lg`}
-    >
+    <div className={`flex flex-col h-full ${theme === "dark" ? "bg-gray-800" : "bg-white"} rounded-lg shadow-lg`}>
       <div className="px-4 pt-1 flex items-center justify-between">
         <SearchSidebar
           searchPluginInstance={searchPluginInstance}
@@ -178,30 +301,24 @@ const handleSwitchMode = () => {
           searchButtonRef={searchButtonRef}
           showBookmarks={showBookmarks}
         />
-       
+
         <div className="flex items-center gap-2" data-theme={theme}>
-        <ZoomOutButton pclassName="rv-zoom__button" />
-              <ZoomPopover className="rpv-zoom__popover"/>
-              <ZoomInButton className="rpv-zoom__button" />
+          <ZoomOutButton pclassName="rv-zoom__button" />
+          <ZoomPopover className="rpv-zoom__popover" />
+          <ZoomInButton className="rpv-zoom__button" />
           <button
             onClick={toggleBookmarks}
             className={`p-2 ${
-              theme === "dark"
-                ? "bg-blue-600 text-white hover:bg-blue-700"
-                : "bg-blue-500 text-white hover:bg-blue-600"
+              theme === "dark" ? "bg-blue-600 text-white hover:bg-blue-700" : "bg-blue-500 text-white hover:bg-blue-600"
             } rounded-lg flex items-center justify-center`}
             title="Toggle Bookmarks"
           >
-            <FiBookmark
-              className={`w-4 h-4 ${showBookmarks ? "fill-current" : ""}`}
-            />
+            <FiBookmark className={`w-4 h-4 ${showBookmarks ? "fill-current" : ""}`} />
           </button>
           <button
             onClick={handleDownload}
             className={`p-2 rounded-lg ${
-              theme === "dark"
-                ? "bg-blue-600 hover:bg-blue-700"
-                : "bg-blue-500 hover:bg-blue-600"
+              theme === "dark" ? "bg-blue-600 hover:bg-blue-700" : "bg-blue-500 hover:bg-blue-600"
             } text-white`}
             disabled={!pdfUrl}
           >
@@ -209,25 +326,29 @@ const handleSwitchMode = () => {
           </button>
         </div>
       </div>
-      {/* <div className="flex items-center justify-between px-5 py-1 mb-2"> */}
-   {fileName && <span  className={`text-sm mb-2  ml-7 mx-3 font-semibold ${
-                  theme === "dark" ? "text-gray-300" : "text-gray-600"
-                }`}><span className="text-blue-600">{"File Name : "}</span>{fileName}</span>}
-                 {/* {isExtract && <button
+      <div className="flex items-center justify-between px-5 py-1 mb-2">
+        {fileName && (
+          <span
+            className={`text-sm mb-2  ml-7 mx-3 font-semibold ${theme === "dark" ? "text-gray-300" : "text-gray-600"}`}
+          >
+            <span className="text-blue-600">{"File Name : "}</span>
+            {fileName}
+          </span>
+        )}
+        {isExtract && (
+          <button
             onClick={handleSwitchMode}
-            className={`py-1 px-2 mr-1 rounded-lg whitespace-nowrap ${theme === "dark" ? "bg-blue-600 hover:bg-blue-700" : "bg-blue-500 hover:bg-blue-600"} text-white text-[0.70rem] font-normal`}
+            className={`py-1 px-2 mr-1 rounded-lg whitespace-nowrap ${
+              theme === "dark" ? "bg-blue-600 hover:bg-blue-700" : "bg-blue-500 hover:bg-blue-600"
+            } text-white text-[0.70rem] font-normal`}
           >
             {switchMode ? "Disable Redacting" : "Redact Manually"}
-          </button>} */}
-          {/* {rects && rects.x + "and" + rects.y} */}
-   {/* </div> */}
+          </button>
+        )}
+      </div>
       {pdfUrl ? (
         <div className="flex flex-1 overflow-hidden">
-          <Bookmark
-            showBookmarks={showBookmarks}
-            toggleBookmarks={toggleBookmarks}
-            theme={theme}
-          >
+          <Bookmark showBookmarks={showBookmarks} toggleBookmarks={toggleBookmarks} theme={theme}>
             <Bookmarks />
           </Bookmark>
           <div
@@ -238,32 +359,28 @@ const handleSwitchMode = () => {
             <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
               <Viewer
                 fileUrl={pdfUrl}
-                plugins={[
-                  searchPluginInstance,
-                  zoomPluginInstance,
-                  bookmarkPluginInstance,
-                ]}
+                plugins={[searchPluginInstance, zoomPluginInstance, bookmarkPluginInstance]}
                 scrollMode="vertical"
                 defaultScale="PageWidth"
                 {...(switchMode && { renderPage })}
                 theme={theme}
                 ref={viewerRef}
+                enableSplitReact={!switchMode} // Disable split-react when switchMode is true
               />
             </Worker>
           </div>
         </div>
       ) : (
         <div
-          className={`flex-1 flex items-center justify-center ${
-            theme === "dark" ? "text-gray-400" : "text-gray-500"
-          }`}
+          className={`flex-1 flex items-center justify-center ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
         >
           No PDF file selected
         </div>
       )}
     </div>
-  );
-});
+  )
+})
 
-PDFViewer.displayName = "PDFViewer";
-export default PDFViewer;
+PDFViewer.displayName = "PDFViewer"
+export default PDFViewer
+
