@@ -326,22 +326,70 @@ const PDFViewer = forwardRef(({ pdfUrl, isLoading, fileName, isExtract }, ref) =
       <div className="flex items-center justify-between px-5 py-1 mb-2">
         {fileName && (
           <span
-            className={`text-sm mb-2  ml-7 mx-3 font-semibold ${theme === "dark" ? "text-gray-300" : "text-gray-600"}`}
+            className={`text-sm mb-2  ml-1 font-semibold ${theme === "dark" ? "text-gray-300" : "text-gray-600"}`}
           >
             <span className="text-blue-600">{"File Name : "}</span>
             {fileName}
           </span>
         )}
-        {isExtract && (
+        {/* {isExtract && (
           <button
-            onClick={handleSwitchMode}
-            className={`py-1 px-2 mr-1 rounded-lg whitespace-nowrap ${
-              theme === "dark" ? "bg-blue-600 hover:bg-blue-700" : "bg-blue-500 hover:bg-blue-600"
-            } text-white text-[0.70rem] font-normal`}
+          onClick={handleSwitchMode}
+          className={`
+            flex items-center gap-1.5
+            px-3 py-2
+            rounded-md
+            font-medium
+            text-xs
+            transition-all duration-200 ease-in-out
+            transform hover:scale-105
+            shadow-sm hover:shadow-md
+            ${switchMode 
+              ? `${theme === "dark" 
+                  ? "bg-red-600 hover:bg-red-700" 
+                  : "bg-red-500 hover:bg-red-600"
+                } text-white`
+              : `${theme === "dark"
+                  ? "bg-blue-600 hover:bg-blue-700"
+                  : "bg-blue-500 hover:bg-blue-600"
+                } text-white`
+            }
+            focus:outline-none focus:ring-2 focus:ring-offset-1
+            ${theme === "dark" 
+              ? "focus:ring-offset-gray-800" 
+              : "focus:ring-offset-white"
+            }
+            ${switchMode
+              ? "focus:ring-red-500"
+              : "focus:ring-emerald-500"
+            }
+          `}
+        >
+          <svg 
+            className={`w-3.5 h-3.5 ${switchMode ? "text-white" : "text-white"}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
           >
-            {switchMode ? "Disable Redacting" : "Redact Manually"}
-          </button>
-        )}
+{switchMode ? (
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                strokeWidth={2} 
+                d="M6 18L18 6M6 6l12 12"
+              />
+            ) : (
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                strokeWidth={2} 
+                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+              />
+            )}          </svg>
+          {switchMode ? "Disable Redacting" : "Redact Manually"}
+        </button>
+        )} */}
       </div>
       {pdfUrl ? (
         <div className="flex flex-1 overflow-hidden">
