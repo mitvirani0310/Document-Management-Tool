@@ -3,11 +3,10 @@ import { Worker, Viewer } from "@react-pdf-viewer/core"
 import { searchPlugin } from "@react-pdf-viewer/search"
 import { zoomPlugin } from "@react-pdf-viewer/zoom"
 import { bookmarkPlugin } from "@react-pdf-viewer/bookmark"
-import { FiDownload, FiBookmark } from "react-icons/fi"
+import { FiDownload, FiBookmark, FiTrash } from "react-icons/fi"
 import SearchSidebar from "../SearchSidebar/SearchSidebar"
 import Bookmark from "../Bookmark/Bookmark"
 import { useTheme } from "../../contexts/ThemeContext"
-
 import "@react-pdf-viewer/core/lib/styles/index.css"
 import "@react-pdf-viewer/zoom/lib/styles/index.css"
 import "@react-pdf-viewer/bookmark/lib/styles/index.css"
@@ -28,8 +27,6 @@ const PDFViewer = forwardRef(({ pdfUrl, isLoading, fileName, isExtract }, ref) =
 
   const { ZoomInButton, ZoomOutButton, ZoomPopover } = zoomPluginInstance
   const [isDragging, setIsDragging] = useState(false)
-  const [scaleFactor, setScaleFactor] = useState(1)
-  const [originalPageDimensions, setOriginalPageDimensions] = useState(null)
   const [tempRect, setTempRect] = useState(null)
 
   const searchPluginInstance = searchPlugin({
@@ -65,6 +62,7 @@ const PDFViewer = forwardRef(({ pdfUrl, isLoading, fileName, isExtract }, ref) =
 
     const target = event.currentTarget
     const rect = target.getBoundingClientRect()
+    console.log('rect: ', rect);
 
     const x = (event.clientX - rect.left) / rect.width
     const y = (event.clientY - rect.top) / rect.height
@@ -78,15 +76,6 @@ const PDFViewer = forwardRef(({ pdfUrl, isLoading, fileName, isExtract }, ref) =
     }
 
     // Convert coordinates to actual PDF dimensions
-    const actualCoordinates = {
-      pageNumber: newRect.pageIndex + 1,
-      coordinates: {
-        x: newRect.x,
-        y: newRect.y,
-        width: newRect.width,
-        height: newRect.height,
-      },
-    }
     setRects((prevRects) => [...prevRects, newRect])
     setTempRect(null)
     setIsDragging(false)
@@ -113,7 +102,143 @@ const PDFViewer = forwardRef(({ pdfUrl, isLoading, fileName, isExtract }, ref) =
     setTempRect(newRect)
   }
 
+  // const renderPage = (props) => {
+  //   return (
+  //     <div
+  //       style={{
+  //         position: "relative",
+  //         width: "100%",
+  //         height: "100%",
+  //         userSelect: switchMode ? "none" : "auto",
+  //         cursor: switchMode ? "crosshair" : "auto",
+  //         overflow: "hidden",
+  //         // resize: switchMode ? "none" : "auto",
+  //       }}
+  //     >
+  //       {props.canvasLayer.children}
+  //       {props.annotationLayer.children}
+  //       {props.textLayer.children}
+
+  //       {switchMode && (
+  //         <div
+  //           style={{
+  //             position: "absolute",
+  //             top: 0,
+  //             left: 0,
+  //             width: "100%",
+  //             height: "100%",
+  //             zIndex: 1000,
+  //           }}
+  //           onMouseDown={(e) => handleMouseDown(e, props.pageIndex)}
+  //           onMouseMove={handleMouseMove}
+  //           onMouseUp={handleMouseUp}
+  //           onMouseLeave={() => {
+  //             if (isDragging) {
+  //               setIsDragging(false)
+  //               setStartPoint(null)
+  //               setTempRect(null)
+  //             }
+  //           }}
+  //         />
+  //       )}
+
+  //       {/* Permanent rectangles */}
+  //       {rects.map(
+  //         (rect, index) =>
+  //           rect.pageIndex === props.pageIndex && (
+  //             <React.Fragment key={index}>
+  //               {/* Label - Placed first to ensure it's rendered above the rectangle */}
+  //               <div
+  //                 style={{
+  //                   position: "absolute",
+  //                   left: `${rect.x * 100}%`,
+  //                   top: `${rect.y * 100}%`,
+  //                   transform: 'translate(0, -30px)', // Move up by fixed amount
+  //                   backgroundColor: "rgba(0, 0, 0, 0.9)",
+  //                   color: "white",
+  //                   padding: "4px 8px",
+  //                   fontSize: "12px",
+  //                   borderRadius: "4px",
+  //                   zIndex: 1003, // Increased z-index
+  //                   whiteSpace: "nowrap",
+  //                   pointerEvents: "none",
+  //                   boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+  //                   border: "1px solid rgba(255, 255, 255, 0.2)",
+  //                 }}
+  //               >
+  //                 Start: ({rect.x.toFixed(2)}, {rect.y.toFixed(2)}) |
+  //                 End: ({(rect.x + rect.width).toFixed(2)}, {(rect.y + rect.height).toFixed(2)}) |
+  //                 Page: {rect.pageIndex + 1}
+  //               </div>
+
+  //               {/* Rectangle */}
+  //               <div
+  //                 style={{
+  //                   position: "absolute",
+  //                   border: "2px solid red",
+  //                   left: `${rect.x * 100}%`,
+  //                   top: `${rect.y * 100}%`,
+  //                   width: `${rect.width * 100}%`,
+  //                   height: `${rect.height * 100}%`,
+  //                   backgroundColor: "rgba(255, 0, 0, 0.2)",
+  //                   pointerEvents: "none",
+  //                   zIndex: 1001,
+  //                 }}
+  //               />
+  //             </React.Fragment>
+  //           ),
+  //       )}
+
+  //       {/* Temporary rectangle while drawing */}
+  //       {tempRect && tempRect.pageIndex === props.pageIndex && (
+  //         <div
+  //           style={{
+  //             position: "absolute",
+  //             border: "2px dashed red",
+  //             left: `${tempRect.x * 100}%`,
+  //             top: `${tempRect.y * 100}%`,
+  //             width: `${tempRect.width * 100}%`,
+  //             height: `${tempRect.height * 100}%`,
+  //             backgroundColor: "rgba(255, 0, 0, 0.1)",
+  //             pointerEvents: "none",
+  //             zIndex: 1001,
+  //           }}
+  //         />
+  //       )}
+  //     </div>
+  //   )
+  // }
+
+  // React.useEffect(() => {
+  //   const updateDimensions = (width, height) => {
+  //     if (width && height) {
+  //       setOriginalPageDimensions({
+  //         width,
+  //         height,
+  //       })
+  //     }
+  //   }
+
+  //   // You can access the dimensions through the viewerRef if needed
+  //   if (viewerRef.current) {
+  //     const page = viewerRef.current.getElementsByClassName("rpv-core__page")[0]
+  //     if (page) {
+  //       updateDimensions(page.offsetWidth, page.offsetHeight)
+  //     }
+  //   }
+  // }, [])
   const renderPage = (props) => {
+    // Assuming you have a way to update rects state
+    const handleDeleteRect = (rectToDelete) => {
+      const updatedRects = rects.filter(
+        rect => 
+          !(rect.x === rectToDelete.x && 
+            rect.y === rectToDelete.y && 
+            rect.pageIndex === rectToDelete.pageIndex)
+      );
+      setRects(updatedRects);
+    };
+  
     return (
       <div
         style={{
@@ -123,13 +248,12 @@ const PDFViewer = forwardRef(({ pdfUrl, isLoading, fileName, isExtract }, ref) =
           userSelect: switchMode ? "none" : "auto",
           cursor: switchMode ? "crosshair" : "auto",
           overflow: "hidden",
-          resize: switchMode ? "none" : "auto",
         }}
       >
         {props.canvasLayer.children}
         {props.annotationLayer.children}
         {props.textLayer.children}
-
+  
         {switchMode && (
           <div
             style={{
@@ -145,61 +269,75 @@ const PDFViewer = forwardRef(({ pdfUrl, isLoading, fileName, isExtract }, ref) =
             onMouseUp={handleMouseUp}
             onMouseLeave={() => {
               if (isDragging) {
-                setIsDragging(false)
-                setStartPoint(null)
-                setTempRect(null)
+                setIsDragging(false);
+                setStartPoint(null);
+                setTempRect(null);
               }
             }}
           />
         )}
-
+  
         {/* Permanent rectangles */}
-{rects.map(
-  (rect, index) =>
-    rect.pageIndex === props.pageIndex && (
-      <React.Fragment key={index}>
-        {/* Label - Placed first to ensure it's rendered above the rectangle */}
-        <div
-          style={{
-            position: "absolute",
-            left: `${rect.x * 100}%`,
-            top: `${rect.y * 100}%`,
-            transform: 'translate(0, -30px)', // Move up by fixed amount
-            backgroundColor: "rgba(0, 0, 0, 0.9)",
-            color: "white",
-            padding: "4px 8px",
-            fontSize: "12px",
-            borderRadius: "4px",
-            zIndex: 1003, // Increased z-index
-            whiteSpace: "nowrap",
-            pointerEvents: "none",
-            boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
-            border: "1px solid rgba(255, 255, 255, 0.2)",
-          }}
-        >
-          Start: ({rect.x.toFixed(2)}, {rect.y.toFixed(2)}) | 
-          End: ({(rect.x + rect.width).toFixed(2)}, {(rect.y + rect.height).toFixed(2)}) | 
-          Page: {rect.pageIndex + 1}
-        </div>
-
-        {/* Rectangle */}
-        <div
-          style={{
-            position: "absolute",
-            border: "2px solid red",
-            left: `${rect.x * 100}%`,
-            top: `${rect.y * 100}%`,
-            width: `${rect.width * 100}%`,
-            height: `${rect.height * 100}%`,
-            backgroundColor: "rgba(255, 0, 0, 0.2)",
-            pointerEvents: "none",
-            zIndex: 1001,
-          }}
-        />
-      </React.Fragment>
-    ),
-)}
-
+        {rects.map(
+          (rect, index) =>
+            rect.pageIndex === props.pageIndex && (
+              <React.Fragment key={index}>
+                {/* Label with delete icon */}
+                <div
+                  style={{
+                    position: "absolute",
+                    left: `${rect.x * 100}%`,
+                    top: `${rect.y * 100}%`,
+                    transform: `${rect.x > 0.6 ? "translate(-50px, -20px)" : "translate(0, -20px)"}`,
+                    backgroundColor: "rgba(0, 0, 0, 0.9)",
+                    color: "white",
+                    padding: "2px 4px",
+                    fontSize: "9px",
+                    borderRadius: "2px",
+                    zIndex: 1003,
+                    whiteSpace: "pre-wrap",
+                    boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                    border: "1px solid rgba(255, 255, 255, 0.2)",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px"
+                  }}
+                >
+                  <span style={{ pointerEvents: "none" }}>
+                    Start: ({rect.x.toFixed(2)}, {rect.y.toFixed(2)}) |
+                    End: ({(rect.x + rect.width).toFixed(2)}, {(rect.y + rect.height).toFixed(2)}) |
+                    Page: {rect.pageIndex + 1}
+                  </span>
+                  <FiTrash
+                    size={10}
+                    style={{
+                      minWidth: "14px", // Prevent shrinking
+                      minHeight: "14px",
+                      flexShrink: 0, // Prevents the icon from shrinking when text wraps
+                    }}
+                    className="text-red-500 hover:text-red-700 cursor-pointer"
+                    onClick={() => handleDeleteRect(rect)}
+                  />
+                </div>
+  
+                {/* Rectangle */}
+                <div
+                  style={{
+                    position: "absolute",
+                    border: "2px solid red",
+                    left: `${rect.x * 100}%`,
+                    top: `${rect.y * 100}%`,
+                    width: `${rect.width * 100}%`,
+                    height: `${rect.height * 100}%`,
+                    backgroundColor: "rgba(255, 0, 0, 0.2)",
+                    pointerEvents: "none",
+                    zIndex: 1001,
+                  }}
+                />
+              </React.Fragment>
+            )
+        )}
+  
         {/* Temporary rectangle while drawing */}
         {tempRect && tempRect.pageIndex === props.pageIndex && (
           <div
@@ -217,27 +355,9 @@ const PDFViewer = forwardRef(({ pdfUrl, isLoading, fileName, isExtract }, ref) =
           />
         )}
       </div>
-    )
-  }
-
-  React.useEffect(() => {
-    const updateDimensions = (width, height) => {
-      if (width && height) {
-        setOriginalPageDimensions({
-          width,
-          height,
-        })
-      }
-    }
-
-    // You can access the dimensions through the viewerRef if needed
-    if (viewerRef.current) {
-      const page = viewerRef.current.getElementsByClassName("rpv-core__page")[0]
-      if (page) {
-        updateDimensions(page.offsetWidth, page.offsetHeight)
-      }
-    }
-  }, [])
+    );
+  };
+  
 
   const handleSwitchMode = () => {
     setSwitchMode((prev) => !prev)
@@ -305,18 +425,16 @@ const PDFViewer = forwardRef(({ pdfUrl, isLoading, fileName, isExtract }, ref) =
           <ZoomInButton className="rpv-zoom__button" />
           <button
             onClick={toggleBookmarks}
-            className={`p-2 ${
-              theme === "dark" ? "bg-blue-600 text-white hover:bg-blue-700" : "bg-blue-500 text-white hover:bg-blue-600"
-            } rounded-lg flex items-center justify-center`}
+            className={`p-2 ${theme === "dark" ? "bg-blue-600 text-white hover:bg-blue-700" : "bg-blue-500 text-white hover:bg-blue-600"
+              } rounded-lg flex items-center justify-center`}
             title="Toggle Bookmarks"
           >
             <FiBookmark className={`w-4 h-4 ${showBookmarks ? "fill-current" : ""}`} />
           </button>
           <button
             onClick={handleDownload}
-            className={`p-2 rounded-lg ${
-              theme === "dark" ? "bg-blue-600 hover:bg-blue-700" : "bg-blue-500 hover:bg-blue-600"
-            } text-white`}
+            className={`p-2 rounded-lg ${theme === "dark" ? "bg-blue-600 hover:bg-blue-700" : "bg-blue-500 hover:bg-blue-600"
+              } text-white`}
             disabled={!pdfUrl}
           >
             <FiDownload className="w-4 h-4" />
@@ -332,7 +450,7 @@ const PDFViewer = forwardRef(({ pdfUrl, isLoading, fileName, isExtract }, ref) =
             {fileName}
           </span>
         )}
-        {/* {isExtract && (
+        {isExtract && (
           <button
           onClick={handleSwitchMode}
           className={`
@@ -389,7 +507,7 @@ const PDFViewer = forwardRef(({ pdfUrl, isLoading, fileName, isExtract }, ref) =
             )}          </svg>
           {switchMode ? "Disable Redacting" : "Redact Manually"}
         </button>
-        )} */}
+        )}
       </div>
       {pdfUrl ? (
         <div className="flex flex-1 overflow-hidden">
@@ -397,9 +515,8 @@ const PDFViewer = forwardRef(({ pdfUrl, isLoading, fileName, isExtract }, ref) =
             <Bookmarks />
           </Bookmark>
           <div
-            className={`flex-1 rounded-lg shadow-inner ${
-              theme === "dark" ? "bg-gray-700" : "bg-gray-50"
-            } overflow-auto border-t border-gray-300`}
+            className={`flex-1 rounded-lg shadow-inner ${theme === "dark" ? "bg-gray-700" : "bg-gray-50"
+              } overflow-auto border-t border-gray-300`}
           >
             <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
               <Viewer
@@ -410,7 +527,7 @@ const PDFViewer = forwardRef(({ pdfUrl, isLoading, fileName, isExtract }, ref) =
                 {...(switchMode && { renderPage })}
                 theme={theme}
                 ref={viewerRef}
-                enableSplitReact={!switchMode} // Disable split-react when switchMode is true
+                // enableSplitReact={!switchMode} // Disable split-react when switchMode is true
               />
             </Worker>
           </div>
