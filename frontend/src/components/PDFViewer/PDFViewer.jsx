@@ -287,7 +287,19 @@ const PDFViewer = forwardRef(({ pdfUrl, isLoading, fileName, isExtract }, ref) =
                     position: "absolute",
                     left: `${rect.x * 100}%`,
                     top: `${rect.y * 100}%`,
-                    transform: `${rect.x > 0.6 ? "translate(-50px, -20px)" : "translate(0, -20px)"}`,
+                    // transform: `${rect.x > 0.6 ? "translate(-50px, -20px)" : "translate(0, -20px)"}`,
+                    transform: `${
+                      rect.x > 0.5 && rect.y < 0.5 
+                        ? "translate(-50px, 30px)"  // 2nd Quadrant - Bottom Most Right
+                        : rect.x < 0.5 && rect.y < 0.5 
+                          ? "translate(30px, 30px)" // 1st Quadrant - Bottom Most Left
+                          : rect.x < 0.5 && rect.y > 0.5 
+                            ? "translate(20px, -30px)" // 3rd Quadrant - Right Top (✅ Already Correct)
+                            : "translate(-50px, -30px)" // 4th Quadrant - Left Top (✅ Already Correct)
+                    }`,
+                    
+                    
+                    
                     backgroundColor: "rgba(0, 0, 0, 0.9)",
                     color: "white",
                     padding: "2px 4px",
@@ -449,7 +461,7 @@ const PDFViewer = forwardRef(({ pdfUrl, isLoading, fileName, isExtract }, ref) =
             {fileName}
           </span>
         )}
-        {/* {isExtract && (
+        {isExtract && (
           <button
           onClick={handleSwitchMode}
           className={`
@@ -506,7 +518,7 @@ const PDFViewer = forwardRef(({ pdfUrl, isLoading, fileName, isExtract }, ref) =
             )}          </svg>
           {switchMode ? "Disable Redacting" : "Redact Manually"}
         </button>
-        )} */}
+        )}
       </div>
       {pdfUrl ? (
         <div className="flex flex-1 overflow-hidden">
