@@ -62,7 +62,6 @@ const PDFViewer = forwardRef(({ pdfUrl, isLoading, fileName, isExtract }, ref) =
 
     const target = event.currentTarget
     const rect = target.getBoundingClientRect()
-    console.log('rect: ', rect);
 
     const x = (event.clientX - rect.left) / rect.width
     const y = (event.clientY - rect.top) / rect.height
@@ -450,7 +449,7 @@ const PDFViewer = forwardRef(({ pdfUrl, isLoading, fileName, isExtract }, ref) =
             {fileName}
           </span>
         )}
-        {isExtract && (
+        {/* {isExtract && (
           <button
           onClick={handleSwitchMode}
           className={`
@@ -507,7 +506,7 @@ const PDFViewer = forwardRef(({ pdfUrl, isLoading, fileName, isExtract }, ref) =
             )}          </svg>
           {switchMode ? "Disable Redacting" : "Redact Manually"}
         </button>
-        )}
+        )} */}
       </div>
       {pdfUrl ? (
         <div className="flex flex-1 overflow-hidden">
